@@ -1,4 +1,4 @@
-name: Build
+name: Patch Youtube
 
 on: 
   push:
@@ -18,13 +18,13 @@ jobs:
           # https://github.com/AngleSharp/AngleSharp
           Install-Package AngleSharp -Source https://www.nuget.org/api/v2 -SkipDependencies -Force
 
-      - name: YouTube
+      - name: download YouTube
         run: |
           New-Item -Path Temp -ItemType Directory -Force
 
           . Scripts\YouTube.ps1
 
-      - name: ReVanced CLI
+      - name: download ReVanced CLI
         run: |
           . Scripts\ReVanced_CLI.ps1
 
@@ -32,19 +32,15 @@ jobs:
         run: |
           . Scripts\ReVanced_Patches.ps1
 
-      - name: ReVanced Integrations
+      - name: download ReVanced Integrations
         run: |
           . Scripts\ReVanced_Intergrations.ps1
 
-      - name: Vanced MicroG
-        run: |
-          . Scripts\MicroG.ps1
-
-      - name: Zulu JDK
+      - name: download Zulu JDK
         run: |
           . Scripts\Zulu_JDK.ps1
 
-      - name: Building
+      - name: Patch
         run: |
           # https://github.com/revanced/revanced-patches
           $JavaPath = (Resolve-Path -Path "Temp\jdk_windows-x64_bin\zulu*win_x64\bin\java.exe").Path
@@ -54,17 +50,17 @@ jobs:
           --apk "Temp\youtube.apk" `
           --bundles "Temp\revanced-patches.jar" `
           --merge "Temp\app-release-unsigned.apk" `
-          --exclude always-autorepeat --exclude enable-wide-searchbar --exclude disable-fullscreen-panels --exclude premium-heading --exclude tablet-mini-player `
+          -e enable-debugging -e custom-playback-speed -e hide-infocard-suggestions -e hide-time-and-seekbar -e old-quality-layout -e enable-wide-searchbar -e disable-fullscreen-panels -e hide-autoplay-button -e hide-video-buttons -e hide-email-address -e tablet-mini-player -e disable-auto-player-popup-panels `
           --clean `
           --temp-dir "Temp\Temp" `
           --out "Temp\revanced.apk"
 
-      - name: Creating archive
+      - name: Create archive
         run: |
           $Parameters = @{
-              Path             = "Temp\revanced.apk", "Temp\microg.apk"
+              Path             = "Temp\revanced.apk"
               DestinationPath  = "ReVanced.zip"
-              CompressionLevel = "Fastest"
+              CompressionLevel = "Optimal"
               Force            = $true
           }
           Compress-Archive @Parameters
@@ -73,7 +69,7 @@ jobs:
         id: read_release
         run: |
           # https://en.wikipedia.org/wiki/Percent-encoding
-          $Release = (Get-Content -Path ReleaseNotesTemplate.md -Encoding utf8 -Raw).replace("`n", "%0A").replace("`r", "%0D").replace("YouTubeTag", "${{ env.LatestSupportedYT }}").replace("CLITag", "${{ env.CLIvtag }}").replace("PatchesTag", "${{ env.Patchesvtag }}").replace("IntegrationsTag", "${{ env.IntegrationsTag }}").replace("MicroGTag", "${{ env.MicroGTag }}").replace("ZuluTag", "${{ env.ZuluTag }}")
+          $Release = (Get-Content -Path ReleaseNotesTemplate.md -Encoding utf8 -Raw).replace("`n", "%0A").replace("`r", "%0D").replace("YouTubeTag", "${{ env.LatestSupportedYT }}").replace("CLITag", "${{ env.CLIvtag }}").replace("PatchesTag", "${{ env.Patchesvtag }}").replace("IntegrationsTag", "${{ env.IntegrationsTag }}").replace("ZuluTag", "${{ env.ZuluTag }}")
 
           # https://trstringer.com/github-actions-multiline-strings/
           echo "::set-output name=RELEASE_BODY::$Release"
@@ -87,4 +83,4 @@ jobs:
           name: ${{ env.RELEASE_NAME }}
           token: ${{ github.token }}
           files: ReVanced.zip
-          body: ${{ steps.read_release.outputs.RELEASE_BODY }}
+             body: ${{ steps.read_release.outputs.RELEASE_BODY }}
