@@ -37,6 +37,7 @@ jobs:
           message: automated build-tools update commit
           push: true
       - name: Trigger a release
+        if: steps.check.outputs.isModified == 'yes'
         uses: benc-uk/workflow-dispatch@v1
         with:
           workflow: Patch and release youtube
