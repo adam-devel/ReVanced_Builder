@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 import {JSDOM as jsdom} from 'jsdom'
 import jquery from 'jquery'
 
@@ -20,8 +21,4 @@ const redirectpageDom = await jsdom.fromURL(redirectpageUrl);
 
 // download url
 $ = jquery(redirectpageDom.window);
-const dlUrl = $('a:contains(here)').prop('href');
-
-console.log(dlUrl)
-
-//Uri = `https://www.apkmirror.com/apk/google-inc/youtube/youtube-${version}-release/youtube-${version}-2-android-apk-download/download/$($Key)"
+process.stdout.write($('a:contains(here)').prop('href'))

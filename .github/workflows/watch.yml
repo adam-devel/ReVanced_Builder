@@ -1,7 +1,7 @@
-name: Watch for updates
+name: Check for updates
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
   schedule:
     # trigger every 2 hours
     - cron: '0 0/2 * * *'
@@ -11,25 +11,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Fetch Revanced API
+      - name: API fetch
         run: |
           mkdir .tmp
-          curl -sL https://releases.rvcd.win/tools > .tmp/tools.json
-      - name: Extract Tools Metadata
+          curl -sL \
+            https://releases.rvcd.win/tools \
+            > .tmp/tools.json
+      - name: Extract bud tools metadata into `build-tools`
         run: |
           mkdir -p build-tools
           jq '.tools[]|select(.repository == "TeamVanced/VancedMicroG")|{version, download_url:.browser_download_url}' -c .tmp/tools.json > build-tools/vanced-microg.json
           jq '.tools[]|select(.repository == "revanced/revanced-cli")|{version, download_url:.browser_download_url}' -c .tmp/tools.json > build-tools/revanced-cli.json
           jq '.tools[]|select(.repository == "revanced/revanced-patches" and .content_type == "application/java-archive")|{version, download_url:.browser_download_url}' -c .tmp/tools.json > build-tools/revanced-patches.json
           jq '.tools[]|select(.repository == "revanced/revanced-integrations")|{version, download_url:.browser_download_url}' -c .tmp/tools.json > build-tools/revanced-integrations.json
-      - name: Check For Updates
-        id: git-check
-        run: echo ::set-output name=modified::$([ -z "`git status --porcelain`" ] && echo "false" || echo "true")
+
+      - name: Check for change
+        id: check
+        run: echo ::set-output name=isModified::$([ -z "`git status --porcelain`" ] && echo "no" || echo "yes")
 
       - name: Commit New Updates
-        if: steps.git-check.outputs.modified == 'true'
+        if: steps.check.outputs.isModified == 'yes'
         uses: EndBug/add-and-commit@v9
         with:
           add: 'build-tools'
           message: automated build-tools update commit
           push: true
+      - name: Trigger a release
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: Patch and release youtube
+          token: ${{ secrets.WORKFLOW_DISPATCH_TOKEN }}

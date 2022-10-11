@@ -151,13 +151,14 @@ jobs:
       - name: make tag
         id: make-tag
         run: |
-          tag=`date +%F`
+          tag="$(date +%F)-$(git rev-parse --short HEAD)"
           git tag "$tag"
-          echo "::set-output name=tag::${tag}"
+          echo "::set-output name=tag-name::${tag}"
       - name: Uploading
         uses: ncipollo/release-action@v1
         with:
-          token: ${{ github.token }}
           bodyFile: ReleaseNotes.md
           artifacts: .tmp/artifacts/*.apk
-          tag: ${{ steps.make-tag.outputs.tag }}
+          tag: ${{ steps.make-tag.outputs.tag-name }}
+          token: ${{ github.token }}
+          allowUpdates: true
