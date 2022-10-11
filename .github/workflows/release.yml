@@ -21,7 +21,15 @@ jobs:
         with:
           node-version: '16'
       - run: npm ci
-
+      # create temporary directory structure
+      - name: build temporary directory structure
+        run: |
+          mkdir .tmp
+          mkdir .tmp/youtube
+          mkdir .tmp/youtube/latest-cache
+          mkdir .tmp/youtube/beta-cache
+          mkdir .tmp/youtube/recommended-cache
+          mkdir .tmp/artifacts
       # download youtube and microg
       - name: download youtube stable, beta and recommended versions
         run: |
@@ -29,34 +37,34 @@ jobs:
           wget \
             --user-agent="$useragent" \
             `node scrape-youtube-download-link.mjs 17.39.35` \
-            -O youtube-lts.apk
+            -O .tmp/youtube/latest.apk
           wget \
             --user-agent="$useragent" \
             `node scrape-youtube-download-link.mjs 17.36.37` \
-            -Oyoutube-rec.apk
+            -O .tmp/youtube/recommended.apk
           wget \
             --user-agent="$useragent" \
             `node scrape-youtube-download-link.mjs 17.40.35` \
-            -O youtube-beta.apk
+            -O .tmp/youtube/beta.apk
 
       # download build dependencies
       - name: download ReVanced CLI
         run: |
           curl -sL `jq -r '.download_url' dependencies/revanced-cli.json` \
-            -o revanced-cli.jar
+            -o .tmp/revanced-cli.jar
           curl -sL `jq -r '.download_url' dependencies/revanced-patches.json` \
-            -o revanced-patches.jar
+            -o .tmp/revanced-patches.jar
           curl -sL `jq -r '.download_url' dependencies/revanced-integrations.json` \
-            -o revanced-integrations.apk
+            -o .tmp/revanced-integrations.apk
 
       # start patching
       - name: Patch recommended youtube version
         run: |
           java \
-          -jar "revanced-cli.jar" \
-          --apk "youtube-rec.apk" \
-          --bundles "revanced-patches.jar" \
-          --merge "revanced-integrations.apk" \
+          -jar .tmp/revanced-cli.jar \
+          --apk .tmp/youtube/recommended.apk \
+          --bundles .tmp/revanced-patches.jar \
+          --merge .tmp/revanced-integrations.apk \
           --experimental \
           -e enable-debugging \
           -e custom-playback-speed \
@@ -71,16 +79,16 @@ jobs:
           -e tablet-mini-player \
           -e disable-auto-player-popup-panels \
           --clean \
-          --temp-dir ".tmp" \
-          --out ".tmp\youtube-revanced-recommended.apk"
+          --temp-dir .tmp/youtube/recommemded-cache/ \
+          --out .tmp/artifacts/youtube-revanced-recommended.apk"
 
       - name: Patch latest youtube version
         run: |
           java \
-          -jar "revanced-cli.jar" \
-          --apk "youtube-lts.apk" \
-          --bundles "revanced-patches.jar" \
-          --merge "revanced-integrations.apk" \
+          -jar .tmp/revanced-cli.jar \
+          --apk .tmp/youtube/latest.apk \
+          --bundles .tmp/revanced-patches.jar \
+          --merge .tmp/revanced-integrations.apk \
           --experimental \
           -e enable-debugging \
           -e custom-playback-speed \
@@ -95,16 +103,16 @@ jobs:
           -e tablet-mini-player \
           -e disable-auto-player-popup-panels \
           --clean \
-          --temp-dir ".tmp" \
-          --out ".tmp\youtube-revanced-latest.apk"
+          --temp-dir .tmp/youtube/latest-cache/ \
+          --out .tmp/artifacts/youtube-revanced-latest.apk
 
       - name: Patch beta youtube version
         run: |
           java \
-          -jar "revanced-cli.jar" \
-          --apk "youtube-beta.apk" \
-          --bundles "revanced-patches.jar" \
-          --merge "revanced-integrations.apk" \
+          -jar .tmp/revanced-cli.jar \
+          --apk .tmp/youtube/beta.apk \
+          --bundles .tmp/revanced-patches.jar \
+          --merge .tmp/revanced-integrations.apk \
           --experimental \
           -e enable-debugging \
           -e custom-playback-speed \
@@ -119,8 +127,8 @@ jobs:
           -e tablet-mini-player \
           -e disable-auto-player-popup-panels \
           --clean \
-          --temp-dir ".tmp" \
-          --out ".tmp\youtube-revanced-beta.apk"
+          --temp-dir .tmp/youtube/beta-cache/ \
+          --out .tmp/artifacts/youtube-revanced-beta.apk
 
       - name: Generate release notes
         run: |
@@ -141,5 +149,5 @@ jobs:
         with:
           token: ${{ github.token }}
           bodyFile: ReleaseNotes.md
-          artifacts: youtube-revanced-*.apk
+          artifacts: .tmp/artifacts/*
           tag: ${{ steps.make-tag.outputs.tag }}
