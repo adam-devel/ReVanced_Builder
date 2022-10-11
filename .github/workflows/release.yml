@@ -32,11 +32,11 @@ jobs:
       # download build dependencies
       - name: download ReVanced CLI
         run: |
-          curl -sL `jq '.download_url' dependencies/revanced-cli.json` \
+          curl -sL `jq -r '.download_url' dependencies/revanced-cli.json` \
             -o revanced-cli.jar
-          curl -sL `jq '.download_url' dependencies/revanced-patches.json` \
+          curl -sL `jq -r '.download_url' dependencies/revanced-patches.json` \
             -o revanced-patches.jar
-          curl -sL `jq '.download_url' dependencies/revanced-integrations.json` \
+          curl -sL `jq -r '.download_url' dependencies/revanced-integrations.json` \
             -o revanced-integrations.apk
 
       # start patching
