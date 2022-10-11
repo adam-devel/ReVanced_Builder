@@ -1,0 +1,132 @@
+name: Patch and release youtube
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'dependencies/*'
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+
+      # set up envirenment
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - run: npm ci
+
+      # download youtube and microg
+      - name: download youtube stable, beta and recommended versions
+        run: |
+          curl -sL `node scrape-youtube-download-link.mjs 17.39.35` -o youtube-lts.apk
+          curl -sL `node scrape-youtube-download-link.mjs 17.36.37` -o youtube-rec.apk
+          curl -sL `node scrape-youtube-download-link.mjs 17.40.35` -o youtube-beta.apk
+
+      # download build dependencies
+      - name: download ReVanced CLI
+        run: |
+          curl -sL `jq '.download_url' dependencies/revanced-cli.json` \
+            -o revanced-cli.jar
+          curl -sL `jq '.download_url' dependencies/revanced-patches.json` \
+            -o revanced-patches.jar
+          curl -sL `jq '.download_url' dependencies/revanced-integrations.json` \
+            -o revanced-integrations.apk
+
+      # start patching
+      - name: Patch recommended youtube version
+        run: |
+          java \
+          -jar "revanced-cli.jar" \
+          --apk "youtube-rec.apk" \
+          --bundles "revanced-patches.jar" \
+          --merge "revanced-integrations.apk" \
+          --experimental \
+          -e enable-debugging \
+          -e custom-playback-speed \
+          -e hide-infocard-suggestions \
+          -e hide-time-and-seekbar \
+          -e old-quality-layout \
+          -e enable-wide-searchbar \
+          -e disable-fullscreen-panels \
+          -e hide-autoplay-button \
+          -e hide-video-buttons \
+          -e hide-email-address \
+          -e tablet-mini-player \
+          -e disable-auto-player-popup-panels \
+          --clean \
+          --temp-dir ".tmp" \
+          --out ".tmp\youtube-revanced-recommended.apk"
+
+      - name: Patch latest youtube version
+        run: |
+          java \
+          -jar "revanced-cli.jar" \
+          --apk "youtube-lts.apk" \
+          --bundles "revanced-patches.jar" \
+          --merge "revanced-integrations.apk" \
+          --experimental \
+          -e enable-debugging \
+          -e custom-playback-speed \
+          -e hide-infocard-suggestions \
+          -e hide-time-and-seekbar \
+          -e old-quality-layout \
+          -e enable-wide-searchbar \
+          -e disable-fullscreen-panels \
+          -e hide-autoplay-button \
+          -e hide-video-buttons \
+          -e hide-email-address \
+          -e tablet-mini-player \
+          -e disable-auto-player-popup-panels \
+          --clean \
+          --temp-dir ".tmp" \
+          --out ".tmp\youtube-revanced-latest.apk"
+
+      - name: Patch beta youtube version
+        run: |
+          java \
+          -jar "revanced-cli.jar" \
+          --apk "youtube-beta.apk" \
+          --bundles "revanced-patches.jar" \
+          --merge "revanced-integrations.apk" \
+          --experimental \
+          -e enable-debugging \
+          -e custom-playback-speed \
+          -e hide-infocard-suggestions \
+          -e hide-time-and-seekbar \
+          -e old-quality-layout \
+          -e enable-wide-searchbar \
+          -e disable-fullscreen-panels \
+          -e hide-autoplay-button \
+          -e hide-video-buttons \
+          -e hide-email-address \
+          -e tablet-mini-player \
+          -e disable-auto-player-popup-panels \
+          --clean \
+          --temp-dir ".tmp" \
+          --out ".tmp\youtube-revanced-beta.apk"
+
+      - name: Generate release notes
+        run: |
+          env \
+            cli=`jq '.version' dependencies/revanced-cli.json` \
+            patches=`jq '.version' dependencies/revanced-patches.json` \
+            integrations=`jq '.version' dependencies/revanced-integrations.json` \
+            envsubst < ReleaseNotesTemplate.md > ReleaseNotes.md
+
+      - name: Uploading
+        uses: softprops/action-gh-release@master
+        with:
+          name: ${{ env.RELEASE_NAME }}
+          token: ${{ github.token }}
+          body_path: ReleaseNotes.md
+          files: |
+            youtube-revanced-recommended.apk
+            youtube-revanced-latest.apk
+            youtube-revanced-beta.apk

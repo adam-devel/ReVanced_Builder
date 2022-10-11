@@ -1,0 +1,35 @@
+name: Watch for updates
+
+on:
+  workflow_dispatch:
+  schedule:
+    # trigger every 2 hours
+    - cron: '0 0/2 * * *'
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Fetch Revanced API
+        run: |
+          mkdir .tmp
+          curl -sL https://releases.rvcd.win/tools > .tmp/tools.json
+      - name: Extract tools metadata
+        run: |
+          mkdir -p dependencies
+          jq '.tools[]|select(.repository == "TeamVanced/VancedMicroG")|{version, download_url:.browser_download_url}' -c .tmp/tools.json > dependencies/vanced-microg.json
+          jq '.tools[]|select(.repository == "revanced/revanced-cli")|{version, download_url:.browser_download_url}' -c .tmp/tools.json > dependencies/revanced-cli.json
+          jq '.tools[]|select(.repository == "revanced/revanced-patches" and .content_type == "application/java-archive")|{version, download_url:.browser_download_url}' -c .tmp/tools.json > dependencies/revanced-patches.json
+          jq '.tools[]|select(.repository == "revanced/revanced-integrations")|{version, download_url:.browser_download_url}' -c .tmp/tools.json > dependencies/revanced-integrations.json
+      - name: Check for modified files
+        id: git-check
+        run: echo ::set-output name=modified::$([ -z "`git status --porcelain`" ] && echo "false" || echo "true")
+
+      - name: Commit latest release version
+        if: steps.git-check.outputs.modified == 'true'
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: 'dependencies'
+          message: automated dependencies update
+          push: true
