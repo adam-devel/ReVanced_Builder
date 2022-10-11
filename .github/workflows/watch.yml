@@ -15,21 +15,21 @@ jobs:
         run: |
           mkdir .tmp
           curl -sL https://releases.rvcd.win/tools > .tmp/tools.json
-      - name: Extract tools metadata
+      - name: Extract Tools Metadata
         run: |
-          mkdir -p dependencies
-          jq '.tools[]|select(.repository == "TeamVanced/VancedMicroG")|{version, download_url:.browser_download_url}' -c .tmp/tools.json > dependencies/vanced-microg.json
-          jq '.tools[]|select(.repository == "revanced/revanced-cli")|{version, download_url:.browser_download_url}' -c .tmp/tools.json > dependencies/revanced-cli.json
-          jq '.tools[]|select(.repository == "revanced/revanced-patches" and .content_type == "application/java-archive")|{version, download_url:.browser_download_url}' -c .tmp/tools.json > dependencies/revanced-patches.json
-          jq '.tools[]|select(.repository == "revanced/revanced-integrations")|{version, download_url:.browser_download_url}' -c .tmp/tools.json > dependencies/revanced-integrations.json
-      - name: Check for modified files
+          mkdir -p build-tools
+          jq '.tools[]|select(.repository == "TeamVanced/VancedMicroG")|{version, download_url:.browser_download_url}' -c .tmp/tools.json > build-tools/vanced-microg.json
+          jq '.tools[]|select(.repository == "revanced/revanced-cli")|{version, download_url:.browser_download_url}' -c .tmp/tools.json > build-tools/revanced-cli.json
+          jq '.tools[]|select(.repository == "revanced/revanced-patches" and .content_type == "application/java-archive")|{version, download_url:.browser_download_url}' -c .tmp/tools.json > build-tools/revanced-patches.json
+          jq '.tools[]|select(.repository == "revanced/revanced-integrations")|{version, download_url:.browser_download_url}' -c .tmp/tools.json > build-tools/revanced-integrations.json
+      - name: Check For Updates
         id: git-check
         run: echo ::set-output name=modified::$([ -z "`git status --porcelain`" ] && echo "false" || echo "true")
 
-      - name: Commit latest release version
+      - name: Commit New Updates
         if: steps.git-check.outputs.modified == 'true'
         uses: EndBug/add-and-commit@v9
         with:
-          add: 'dependencies'
-          message: automated dependencies update
+          add: 'build-tools'
+          message: automated build-tools update commit
           push: true

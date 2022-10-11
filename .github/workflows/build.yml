@@ -21,6 +21,7 @@ jobs:
         with:
           node-version: '16'
       - run: npm ci
+
       # create temporary directory structure
       - name: build temporary directory structure
         run: |
@@ -30,32 +31,41 @@ jobs:
           mkdir .tmp/youtube/beta-cache
           mkdir .tmp/youtube/recommended-cache
           mkdir .tmp/artifacts
-      # download youtube and microg
+
+      # download youtube
       - name: download youtube stable, beta and recommended versions
         run: |
           useragent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'
-          wget \
-            --user-agent="$useragent" \
-            `node scrape-youtube-download-link.mjs 17.39.35` \
-            -O .tmp/youtube/latest.apk
-          wget \
-            --user-agent="$useragent" \
-            `node scrape-youtube-download-link.mjs 17.36.37` \
-            -O .tmp/youtube/recommended.apk
-          wget \
-            --user-agent="$useragent" \
-            `node scrape-youtube-download-link.mjs 17.40.35` \
-            -O .tmp/youtube/beta.apk
+          curl -sL \
+            -A "$useragent" \
+            "$(node scrape-youtube-download-link.mjs 17.39.35)" \
+            -o .tmp/youtube/latest.apk
+          curl -sL \
+            -A "$useragent" \
+            "$(node scrape-youtube-download-link.mjs 17.36.37)" \
+            -o .tmp/youtube/recommended.apk
+          curl -sL \
+            -A "$useragent" \
+            "$(node scrape-youtube-download-link.mjs 17.40.35)"` \
+            -o .tmp/youtube/beta.apk
 
-      # download build dependencies
+      # download build tools
       - name: download ReVanced CLI
         run: |
-          curl -sL `jq -r '.download_url' dependencies/revanced-cli.json` \
-            -o .tmp/revanced-cli.jar
-          curl -sL `jq -r '.download_url' dependencies/revanced-patches.json` \
-            -o .tmp/revanced-patches.jar
-          curl -sL `jq -r '.download_url' dependencies/revanced-integrations.json` \
-            -o .tmp/revanced-integrations.apk
+          curl -sL \
+            -o .tmp/revanced-cli.jar \
+            `jq -r \
+              '.download_url' \
+              build-tools/revanced-cli.json`
+          curl -sL \
+            -o .tmp/revanced-patches.jar \
+            `jq -r \
+              '.download_url' \
+              build-tools/revanced-patches.json`
+          curl -sL \
+            -o .tmp/revanced-integrations.apk \
+            `jq -r \
+             '.download_url' build-tools/revanced-integrations.json`
 
       # start patching
       - name: Patch recommended youtube version
@@ -80,7 +90,7 @@ jobs:
           -e disable-auto-player-popup-panels \
           --clean \
           --temp-dir .tmp/youtube/recommemded-cache/ \
-          --out .tmp/artifacts/youtube-revanced-recommended.apk"
+          --out .tmp/artifacts/youtube-revanced-recommended.apk
 
       - name: Patch latest youtube version
         run: |
@@ -133,9 +143,9 @@ jobs:
       - name: Generate release notes
         run: |
           env \
-            cli=`jq '.version' dependencies/revanced-cli.json` \
-            patches=`jq '.version' dependencies/revanced-patches.json` \
-            integrations=`jq '.version' dependencies/revanced-integrations.json` \
+            cli=`jq -r '.version' build-tools/revanced-cli.json` \
+            patches=`jq -r '.version' build-tools/revanced-patches.json` \
+            integrations=`jq -r '.version' build-tools/revanced-integrations.json` \
             envsubst < ReleaseNotesTemplate.md > ReleaseNotes.md
 
       - name: make tag
