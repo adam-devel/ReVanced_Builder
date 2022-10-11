@@ -159,5 +159,5 @@ jobs:
         with:
           token: ${{ github.token }}
           bodyFile: ReleaseNotes.md
-          artifacts: .tmp/artifacts/*
+          artifacts: .tmp/artifacts/*.apk
           tag: ${{ steps.make-tag.outputs.tag }}
