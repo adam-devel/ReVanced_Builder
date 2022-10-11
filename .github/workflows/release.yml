@@ -120,10 +120,11 @@ jobs:
             integrations=`jq '.version' dependencies/revanced-integrations.json` \
             envsubst < ReleaseNotesTemplate.md > ReleaseNotes.md
 
+      - name: tag
+        run: git tag `date +%F`
       - name: Uploading
         uses: softprops/action-gh-release@master
         with:
-          name: ${{ env.RELEASE_NAME }}
           token: ${{ github.token }}
           body_path: ReleaseNotes.md
           files: |
