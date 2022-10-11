@@ -25,9 +25,19 @@ jobs:
       # download youtube and microg
       - name: download youtube stable, beta and recommended versions
         run: |
-          curl -sL `node scrape-youtube-download-link.mjs 17.39.35` -o youtube-lts.apk
-          curl -sL `node scrape-youtube-download-link.mjs 17.36.37` -o youtube-rec.apk
-          curl -sL `node scrape-youtube-download-link.mjs 17.40.35` -o youtube-beta.apk
+          useragent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'
+          wget \
+            --user-agent="$useragent" \
+            `node scrape-youtube-download-link.mjs 17.39.35` \
+            -O youtube-lts.apk
+          wget \
+            --user-agent="$useragent" \
+            `node scrape-youtube-download-link.mjs 17.36.37` \
+            -Oyoutube-rec.apk
+          wget \
+            --user-agent="$useragent" \
+            `node scrape-youtube-download-link.mjs 17.40.35` \
+            -O youtube-beta.apk
 
       # download build dependencies
       - name: download ReVanced CLI
@@ -120,14 +130,16 @@ jobs:
             integrations=`jq '.version' dependencies/revanced-integrations.json` \
             envsubst < ReleaseNotesTemplate.md > ReleaseNotes.md
 
-      - name: tag
-        run: git tag `date +%F`
+      - name: make tag
+        id: make-tag
+        run: |
+          tag=`date +%F`
+          git tag "$tag"
+          echo "::set-output name=tag::${tag}"
       - name: Uploading
-        uses: softprops/action-gh-release@master
+        uses: ncipollo/release-action@v1
         with:
           token: ${{ github.token }}
-          body_path: ReleaseNotes.md
-          files: |
-            youtube-revanced-recommended.apk
-            youtube-revanced-latest.apk
-            youtube-revanced-beta.apk
+          bodyFile: ReleaseNotes.md
+          artifacts: youtube-revanced-*.apk
+          tag: ${{ steps.make-tag.outputs.tag }}
