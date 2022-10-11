@@ -46,7 +46,7 @@ jobs:
             -o .tmp/youtube/recommended.apk
           curl -sL \
             -A "$useragent" \
-            "$(node scrape-youtube-download-link.mjs 17.40.35)"` \
+            "$(node scrape-youtube-download-link.mjs 17.40.35)" \
             -o .tmp/youtube/beta.apk
 
       # download build tools
