@@ -8,5 +8,5 @@ built with:
 ---
 
 * :white_check_mark: `youtube-revanced-recommended.apk` is built with the the recommened version of youtube
-* :warning: `youtube-revanced-latest.apk` is built with the latest yotube version, this is experimenral
+* :warning: `youtube-revanced-latest.apk` is built with the latest yotube version, this is experimental
 * :construction: `youtube-revanced-beta.apk` is built with the beta version of youtube, this is highly experimental
