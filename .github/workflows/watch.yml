@@ -17,7 +17,7 @@ jobs:
           curl -sL \
             https://releases.rvcd.win/tools \
             > .tmp/tools.json
-      - name: Extract bud tools metadata into `build-tools`
+      - name: Extract version and download url
         run: |
           mkdir -p build-tools
           jq '.tools[]|select(.repository == "TeamVanced/VancedMicroG")|{version, download_url:.browser_download_url}' -c .tmp/tools.json > build-tools/vanced-microg.json
