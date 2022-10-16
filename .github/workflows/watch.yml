@@ -40,7 +40,7 @@ jobs:
           message: automated update
           push: true
           
-  build: Trigger a release
+  build:
     if: steps.compare.outputs.isModified == 'yes'
     uses: ./.github/workflows/build.yml
         
