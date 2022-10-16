@@ -1,44 +1,46 @@
 name: Check for updates
 
 on:
-  workflow_dispatch: {}
+  # tiggers manually
+  workflow_dispatch:
+  # triggers every 2 hours
   schedule:
-    # trigger every 2 hours
     - cron: '0 0/2 * * *'
 
 jobs:
   main:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: API fetch
-        run: |
-          mkdir .tmp
-          curl -sL \
-            https://releases.rvcd.win/tools \
-            > .tmp/tools.json
-      - name: Extract version and download url
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Query revanced's API
         run: |
           mkdir -p build-tools
-          jq '.tools[]|select(.repository == "TeamVanced/VancedMicroG")|{version, download_url:.browser_download_url}' -c .tmp/tools.json > build-tools/vanced-microg.json
-          jq '.tools[]|select(.repository == "revanced/revanced-cli")|{version, download_url:.browser_download_url}' -c .tmp/tools.json > build-tools/revanced-cli.json
-          jq '.tools[]|select(.repository == "revanced/revanced-patches" and .content_type == "application/java-archive")|{version, download_url:.browser_download_url}' -c .tmp/tools.json > build-tools/revanced-patches.json
-          jq '.tools[]|select(.repository == "revanced/revanced-integrations")|{version, download_url:.browser_download_url}' -c .tmp/tools.json > build-tools/revanced-integrations.json
+          endpoint=https://releases.rvcd.win/tools
+          data=$(jq -r .tools <<< "$(curl -sL $endpoint)")
+          jq <<< $data > build-tools/vanced-microg.json \
+            '.[0]|{version, download_url:.browser_download_url}'
+          jq <<< $data > build-tools/revanced-cli.json \
+            '.[1]|{version, download_url:.browser_download_url}'
+          jq <<< $data > build-tools/revanced-patches.json \
+            '.[4]|{version, download_url:.browser_download_url}'
+          jq <<< $data  > build-tools/revanced-integrations.json \
+            '.[5]|{version, download_url:.browser_download_url}'
 
-      - name: Check for change
-        id: check
+      - name: Compare
+        id: compare
         run: echo ::set-output name=isModified::$([ -z "`git status --porcelain`" ] && echo "no" || echo "yes")
 
-      - name: Commit New Updates
-        if: steps.check.outputs.isModified == 'yes'
+      - name: Commit the updates
+        if: steps.compare.outputs.isModified == 'yes'
         uses: EndBug/add-and-commit@v9
         with:
           add: 'build-tools'
-          message: automated build-tools update commit
+          message: automated update
           push: true
+          
       - name: Trigger a release
-        if: steps.check.outputs.isModified == 'yes'
-        uses: benc-uk/workflow-dispatch@v1
-        with:
-          workflow: Patch and release youtube
-          token: ${{ secrets.WORKFLOW_DISPATCH_TOKEN }}
+        if: steps.compare.outputs.isModified == 'yes'
+        uses: ./.github/workflows/build.yml
+        

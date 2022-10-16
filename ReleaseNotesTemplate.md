@@ -1,12 +1,13 @@
-## Automatically generated release notes
+## Release notes
 
-built with:
-* ReVanced CLI $cli
-* ReVanced Patches $patches
-* ReVanced Integrations $integrations
+buid tools:
+* ReVanced CLI $revanced_cli_version
+* ReVanced Patches $revanced_patches_version
+* ReVanced Integrations $revanced_integrations_version
 
----
+youtube:
+* :white_check_mark: recommended $yt_fit
+* :warning: latest $yt_latest
+* :construction: beta $yt_beta
 
-* :white_check_mark: `youtube-revanced-recommended.apk` is built with the the recommened version of youtube
-* :warning: `youtube-revanced-latest.apk` is built with the latest yotube version, this is experimental
-* :construction: `youtube-revanced-beta.apk` is built with the beta version of youtube, this is highly experimental
+download vanced microg from [here]($vanced_microg_url)
