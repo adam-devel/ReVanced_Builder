@@ -1,6 +1,6 @@
 ## Release notes
 
-buid tools:
+build tools:
 * ReVanced CLI $revanced_cli_version
 * ReVanced Patches $revanced_patches_version
 * ReVanced Integrations $revanced_integrations_version
