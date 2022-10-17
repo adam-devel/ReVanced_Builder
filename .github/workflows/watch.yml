@@ -9,6 +9,7 @@ on:
 
 jobs:
   main:
+    id: main
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -41,6 +42,6 @@ jobs:
           push: true
           
   build:
-    if: steps.compare.outputs.isModified == 'yes'
+    if: jobs.main.steps.compare.outputs.isModified == 'yes'
     uses: ./.github/workflows/build.yml
         
