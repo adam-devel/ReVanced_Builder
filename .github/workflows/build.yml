@@ -88,7 +88,17 @@ jobs:
           -e hide-email-address \
           -e tablet-mini-player \
           -e disable-auto-player-popup-panels \
+          -e seekbar-tapping \
+          -e custom-video-buffer \
+          -e hdr-auto-brightness \
+          -e premium-heading \
+          -e hide-watermark \
+          -e disable-auto-captions \
+          -e custom-branding \
           --clean \
+          --rip-lib x86_64 \
+          --rip-lib x86 \
+          --rip-lib arm64-v8a \
           --temp-dir .tmp/youtube/recommemded-cache/ \
           --out .tmp/artifacts/youtube-revanced-recommended.apk
 
@@ -112,7 +122,17 @@ jobs:
           -e hide-email-address \
           -e tablet-mini-player \
           -e disable-auto-player-popup-panels \
+          -e seekbar-tapping \
+          -e custom-video-buffer \
+          -e hdr-auto-brightness \
+          -e premium-heading \
+          -e hide-watermark \
+          -e disable-auto-captions \
+          -e custom-branding \
           --clean \
+          --rip-lib x86_64 \
+          --rip-lib x86 \
+          --rip-lib arm64-v8a \
           --temp-dir .tmp/youtube/latest-cache/ \
           --out .tmp/artifacts/youtube-revanced-latest.apk
 
@@ -136,7 +156,17 @@ jobs:
           -e hide-email-address \
           -e tablet-mini-player \
           -e disable-auto-player-popup-panels \
+          -e seekbar-tapping \
+          -e custom-video-buffer \
+          -e hdr-auto-brightness \
+          -e premium-heading \
+          -e hide-watermark \
+          -e disable-auto-captions \
+          -e custom-branding \
           --clean \
+          --rip-lib x86_64 \
+          --rip-lib x86 \
+          --rip-lib arm64-v8a \
           --temp-dir .tmp/youtube/beta-cache/ \
           --out .tmp/artifacts/youtube-revanced-beta.apk
 
