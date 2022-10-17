@@ -83,6 +83,9 @@ jobs:
               -e hide-email-address \
               -e tablet-mini-player \
               -e disable-auto-player-popup-panels \
+              --rip-lib x86_64 \
+              --rip-lib x86 \
+              --rip-lib arm64-v8a \
               --out ".tmp/artifacts/YouTube $YT_FIT_VERSION.apk" \
               --clean
 
@@ -106,6 +109,9 @@ jobs:
               -e hide-email-address \
               -e tablet-mini-player \
               -e disable-auto-player-popup-panels \
+              --rip-lib x86_64 \
+              --rip-lib x86 \
+              --rip-lib arm64-v8a \
               --out ".tmp/artifacts/Youtube $YT_LATEST_VERSION.apk" \
               --clean
     
@@ -129,6 +135,9 @@ jobs:
               -e hide-email-address \
               -e tablet-mini-player \
               -e disable-auto-player-popup-panels \
+              --rip-lib x86_64 \
+              --rip-lib x86 \
+              --rip-lib arm64-v8a \
               --out ".tmp/artifacts/Youtube $YT_BETA_VERSION.apk" \
               --clean
 
