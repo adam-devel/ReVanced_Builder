@@ -58,7 +58,7 @@ jobs:
       - name: Download ReVanced tools
         run: |
           curl -sL -o .tmp/tools/revanced-cli.jar \
-            `jq -r '.download_url' build-tools/revanced-cli.json`
+            `jq -r '.download_url' build-tools/jhc-revanced-cli.json`
           curl -sL -o .tmp/tools/revanced-patches.jar \
             `jq -r '.download_url' build-tools/revanced-patches.json`
           curl -sL -o .tmp/tools/revanced-integrations.apk \

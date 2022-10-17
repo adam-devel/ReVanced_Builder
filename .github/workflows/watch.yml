@@ -17,19 +17,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Query revanced's API
+      - name: Query
         run: |
           mkdir -p build-tools
-          endpoint=https://releases.rvcd.win/tools
-          data=$(jq -r .tools <<< "$(curl -sL $endpoint)")
-          jq <<< $data > build-tools/vanced-microg.json \
+          revanced_endpoint=https://releases.rvcd.win/tools
+          revanced_tools_data=$(jq -r .tools <<< "$(curl -sL $endpoint)")
+          jq <<< $revanced_tools_data > build-tools/vanced-microg.json \
             '.[0]|{version, download_url:.browser_download_url}'
-          jq <<< $data > build-tools/revanced-cli.json \
+          jq <<< $revanced_tools_data > build-tools/revanced-cli.json \
             '.[1]|{version, download_url:.browser_download_url}'
-          jq <<< $data > build-tools/revanced-patches.json \
+          jq <<< $revanced_tools_data > build-tools/revanced-patches.json \
             '.[4]|{version, download_url:.browser_download_url}'
-          jq <<< $data  > build-tools/revanced-integrations.json \
+          jq <<< $revanced_tools_data > build-tools/revanced-integrations.json \
             '.[5]|{version, download_url:.browser_download_url}'
+          github_endpoint=https://api.github.com
+          jhc_cli_data=$(curl \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            $github_endpoint/repos/j-hc/revanced-cli/releases/latest
+          jq <<< $jhc_cli_data > build-tools/jhc-revanced-cli.json \
+            '{version:.name, download_url:.assets.[0].browser_download_url}'
 
       - name: Compare
         id: compare
