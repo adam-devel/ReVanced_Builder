@@ -34,7 +34,7 @@ jobs:
           jhc_cli_data=$(curl \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            $github_endpoint/repos/j-hc/revanced-cli/releases/latest
+            $github_endpoint/repos/j-hc/revanced-cli/releases/latest)
           jq <<< $jhc_cli_data > build-tools/jhc-revanced-cli.json \
             '{version:.name, download_url:.assets.[0].browser_download_url}'
 
