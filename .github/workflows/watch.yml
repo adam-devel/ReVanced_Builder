@@ -11,7 +11,7 @@ jobs:
   check:
     name: Check for updates
     runs-on: ubuntu-latest
-    output:
+    outputs:
       shouldUpdate: "${{ steps.compare.outputs.isModified }}"
     steps:
       - name: Checkout
