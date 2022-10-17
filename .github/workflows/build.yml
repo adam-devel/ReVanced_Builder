@@ -83,7 +83,7 @@ jobs:
               -e hide-email-address \
               -e tablet-mini-player \
               -e disable-auto-player-popup-panels \
-              --out .tmp/artifacts/YouTube $YT_FIT_VERSION.apk \
+              --out ".tmp/artifacts/YouTube $YT_FIT_VERSION.apk" \
               --clean
 
       - name: Patch latest youtube
@@ -106,7 +106,7 @@ jobs:
               -e hide-email-address \
               -e tablet-mini-player \
               -e disable-auto-player-popup-panels \
-              --out .tmp/artifacts/Youtube $YT_LATEST_VERSION.apk \
+              --out ".tmp/artifacts/Youtube $YT_LATEST_VERSION.apk" \
               --clean
     
       - name: Patch beta youtube version
@@ -129,7 +129,7 @@ jobs:
               -e hide-email-address \
               -e tablet-mini-player \
               -e disable-auto-player-popup-panels \
-              --out .tmp/artifacts/Youtube $YT_BETA_VERSION.apk \
+              --out ".tmp/artifacts/Youtube $YT_BETA_VERSION.apk" \
               --clean
 
       - name: Generate release notes
