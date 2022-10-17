@@ -135,10 +135,10 @@ jobs:
       - name: Generate release notes
         run: |
           env \
-            revanced_cli_version=           `jq -r '.version' build-tools/revanced-cli.json` \
-            recanced_patches_version=       `jq -r '.version' build-tools/revanced-patches.json` \
-            revanced_integrations_version=  `jq -r '.version' build-tools/revanced-integrations.json` \
-            vanced_microg_url=              `jq -r '.download_url' build-tools/vanced-microg.json` \
+            revanced_cli_version=`jq -r '.version' build-tools/revanced-cli.json` \
+            recanced_patches_version=`jq -r '.version' build-tools/revanced-patches.json` \
+            revanced_integrations_version=`jq -r '.version' build-tools/revanced-integrations.json` \
+            vanced_microg_url=`jq -r '.download_url' build-tools/vanced-microg.json` \
             envsubst < ReleaseNotesTemplate.md > .tmp/ReleaseNotes.md
 
       - name: make tag
