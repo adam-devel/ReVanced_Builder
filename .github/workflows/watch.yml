@@ -31,7 +31,7 @@ jobs:
           jq <<< $revanced_tools_data > build-tools/revanced-integrations.json \
             '.[5]|{version, download_url:.browser_download_url}'
           github_endpoint=https://api.github.com
-          jhc_cli_data=$(curl \
+          jhc_cli_data=$(curl -sL \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             $github_endpoint/repos/j-hc/revanced-cli/releases/latest)
