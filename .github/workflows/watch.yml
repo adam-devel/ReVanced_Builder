@@ -21,7 +21,7 @@ jobs:
         run: |
           mkdir -p build-tools
           revanced_endpoint=https://releases.rvcd.win/tools
-          revanced_tools_data=$(jq -r .tools <<< "$(curl -sL $endpoint)")
+          revanced_tools_data=$(jq -r .tools <<< "$(curl -sL $revanced_endpoint)")
           jq <<< $revanced_tools_data > build-tools/vanced-microg.json \
             '.[0]|{version, download_url:.browser_download_url}'
           jq <<< $revanced_tools_data > build-tools/revanced-cli.json \
