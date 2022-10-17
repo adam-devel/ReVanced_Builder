@@ -1,4 +1,4 @@
-name: Check for updates
+name: Update
 
 on:
   # tiggers manually
@@ -8,9 +8,11 @@ on:
     - cron: '0 0/2 * * *'
 
 jobs:
-  main:
-    id: main
+  check:
+    name: Check for updates
     runs-on: ubuntu-latest
+    output:
+      shouldUpdate: "${{ steps.compare.outputs.isModified }}"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -42,6 +44,6 @@ jobs:
           push: true
           
   build:
-    if: jobs.main.steps.compare.outputs.isModified == 'yes'
+    needs: check
+    if: needs.check.outputs.shouldUpdate == 'yes'
     uses: ./.github/workflows/build.yml
-        
