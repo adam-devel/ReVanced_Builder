@@ -36,7 +36,7 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             "${github_endpoint}/repos/j-hc/revanced-cli/releases/latest")
           jq <<< $jhc_cli_data > build-tools/jhc-revanced-cli.json \
-            '{version:.name, download_url:.assets.[0].browser_download_url}'
+            '{version:.name, download_url:.assets[0].browser_download_url}'
 
       - name: Compare
         id: compare
