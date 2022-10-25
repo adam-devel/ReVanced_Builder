@@ -24,14 +24,14 @@ jobs:
       - name: Install NPM Dependencies
         run: npm ci
 #
-#      - name: Download Youtube Versions
-#        run: |
-#          useragent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'
-#          alias download="curl -sL -A $useragent"
-#          alias linkfor="node scrape-youtube-download-link.mjs"
-#          download "$(linkfor $YT_BETA_VERSION)"   -o beta.apk
-#          download "$(linkfor $YT_LATEST_VERSION)" -o latest.apk
-#          download "$(linkfor $YT_FIT_VERSION)"    -o fit.apk
+      - name: Download Youtube Versions
+        run: |
+          useragent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'
+          alias download="curl -sL -A $useragent"
+          alias linkfor="node scrape-youtube-download-link.mjs"
+          download "$(linkfor $YT_BETA_VERSION)"   -o beta.apk
+          download "$(linkfor $YT_LATEST_VERSION)" -o latest.apk
+          download "$(linkfor $YT_FIT_VERSION)"    -o fit.apk
 #
 #        - use: actions/upload-artifact@v3
 #          with:
