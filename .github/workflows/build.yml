@@ -5,39 +5,38 @@ on:
   workflow_call:
 
 jobs:
-  get youtube:
-    concurrency: download
-    runs-on: ubuntu-latest
-    env:
-      YT_BETA_VERSION: 17.41.36
-      YT_LATEST_VERSION: 17.40.41 
-      YT_FIT_VERSION: 17.36.37
-    steps:
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with: 
-          - node-version: '16'
-
-      - name: Install NPM Dependencies
-        run: npm ci
-
-      - name: Download Youtube Versions
-        run: |
-          useragent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'
-          alias download="curl -sL -A $useragent"
-          alias linkfor="node scrape-youtube-download-link.mjs"
-          download "$(linkfor $YT_BETA_VERSION)"   -o beta.apk
-          download "$(linkfor $YT_LATEST_VERSION)" -o latest.apk
-          download "$(linkfor $YT_FIT_VERSION)"    -o fit.apk
-
-        - use: actions/upload-artifact@v3
-          with:
-            name: youtube
-            path: |
-              beta.apk
-              latest.apk
-              fit.apk
-
+#  get youtube:
+#    concurrency: download
+#    runs-on: ubuntu-latest
+#    env:
+#      YT_BETA_VERSION: 17.41.36
+#      YT_LATEST_VERSION: 17.40.41 
+#      YT_FIT_VERSION: 17.36.37
+#    steps:
+#      - name: Setup Node
+#        uses: actions/setup-node@v3
+#        with: 
+#          - node-version: '16'
+#
+#      - name: Install NPM Dependencies
+#        run: npm ci
+#
+#      - name: Download Youtube Versions
+#        run: |
+#          useragent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'
+#          alias download="curl -sL -A $useragent"
+#          alias linkfor="node scrape-youtube-download-link.mjs"
+#          download "$(linkfor $YT_BETA_VERSION)"   -o beta.apk
+#          download "$(linkfor $YT_LATEST_VERSION)" -o latest.apk
+#          download "$(linkfor $YT_FIT_VERSION)"    -o fit.apk
+#
+#        - use: actions/upload-artifact@v3
+#          with:
+#            name: youtube
+#            path: |
+#              beta.apk
+#              latest.apk
+#              fit.apk
   get build tools:
     concurrency: download
     runs-on: ubuntu-latest
@@ -58,35 +57,35 @@ jobs:
               revanced-patches.jar
               revanced-integrations.apk 
 
-  patch:
-    runs-on: ubuntu-latest
-    env:
-      YT_BETA_VERSION: 17.41.36
-      YT_LATEST_VERSION: 17.40.41 
-      YT_FIT_VERSION: 17.36.37
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        
-      - name: Setup Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-            
-      - name: Create Temporary Directory Structure
-        run: |
-          mkdir -p .tmp/youtube
-          mkdir -p .tmp/tools
-          mkdir -p .tmp/artifacts
-          
-      - name: Import Youtube APKs
-        uses: actions/download-artifact@v3
-        with:
-          name: youtube 
-          path: .tmp/youtube/
-
-      - name: Import Build Tools
+#  patch:
+#    runs-on: ubuntu-latest
+#    env:
+#      YT_BETA_VERSION: 17.41.36
+#      YT_LATEST_VERSION: 17.40.41 
+#      YT_FIT_VERSION: 17.36.37
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v3
+#        
+#      - name: Setup Java
+#        uses: actions/setup-java@v3
+#        with:
+#          distribution: 'zulu'
+#          java-version: '17'
+#            
+#      - name: Create Temporary Directory Structure
+#        run: |
+#          mkdir -p .tmp/youtube
+#          mkdir -p .tmp/tools
+#          mkdir -p .tmp/artifacts
+#          
+#      - name: Import Youtube APKs
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: youtube 
+#          path: .tmp/youtube/
+#
+#      - name: Import Build Tools
         uses: actions/download-artifact@v3
         with:
           name: tools
@@ -113,82 +112,82 @@ jobs:
               -e disable-auto-player-popup-panels \
               --rip-lib x86_64 \
               --rip-lib x86 \
-              --rip-lib arm64-v8a \
-              --out ".tmp/artifacts/YouTube $YT_FIT_VERSION.apk" \
-              --clean
-
-      - name: Patch latest youtube
-        run: |
-          java \
-            -jar .tmp/tools/revanced-cli.jar \
-              --apk     .tmp/youtube/latest.apk \
-              --bundles .tmp/tools/revanced-patches.jar \
-              --merge   .tmp/tools/revanced-integrations.apk \
-              --experimental \
-              -e enable-debugging \
-              -e custom-playback-speed \
-              -e hide-infocard-suggestions \
-              -e hide-time-and-seekbar \
-              -e old-quality-layout \
-              -e enable-wide-searchbar \
-              -e disable-fullscreen-panels \
-              -e hide-autoplay-button \
-              -e hide-video-buttons \
-              -e hide-email-address \
-              -e tablet-mini-player \
-              -e disable-auto-player-popup-panels \
-              --rip-lib x86_64 \
-              --rip-lib x86 \
-              --rip-lib arm64-v8a \
-              --out ".tmp/artifacts/Youtube $YT_LATEST_VERSION.apk" \
-              --clean
-    
-      - name: Patch beta youtube version
-        run: |
-          java \
-            -jar .tmp/tools/revanced-cli.jar \
-              --apk     .tmp/youtube/beta.apk \
-              --bundles .tmp/tools/revanced-patches.jar \
-              --merge   .tmp/tools/revanced-integrations.apk \
-              --experimental \
-              -e enable-debugging \
-              -e custom-playback-speed \
-              -e hide-infocard-suggestions \
-              -e hide-time-and-seekbar \
-              -e old-quality-layout \
-              -e enable-wide-searchbar \
-              -e disable-fullscreen-panels \
-              -e hide-autoplay-button \
-              -e hide-video-buttons \
-              -e hide-email-address \
-              -e tablet-mini-player \
-              -e disable-auto-player-popup-panels \
-              --rip-lib x86_64 \
-              --rip-lib x86 \
-              --rip-lib arm64-v8a \
-              --out ".tmp/artifacts/Youtube $YT_BETA_VERSION.apk" \
-              --clean
-
-      - name: Generate release notes
-        run: |
-          env \
-            revanced_cli_version=`jq -r '.version' build-tools/revanced-cli.json` \
-            recanced_patches_version=`jq -r '.version' build-tools/revanced-patches.json` \
-            revanced_integrations_version=`jq -r '.version' build-tools/revanced-integrations.json` \
-            vanced_microg_url=`jq -r '.download_url' build-tools/vanced-microg.json` \
-            envsubst < ReleaseNotesTemplate.md > .tmp/ReleaseNotes.md
-
-      - name: make tag
-        id: make-tag
-        run: |
-          tag="$(date +%F)-$(git rev-parse --short HEAD)"
-          git tag "$tag"
-          echo "::set-output name=tag-name::${tag}"
-      - name: Uploading
-        uses: ncipollo/release-action@v1
-        with:
-          bodyFile: .tmp/ReleaseNotes.md
-          artifacts: .tmp/artifacts/*.apk
-          tag: ${{ steps.make-tag.outputs.tag-name }}
-          token: ${{ github.token }}
-          allowUpdates: true
+#              --rip-lib arm64-v8a \
+#              --out ".tmp/artifacts/YouTube $YT_FIT_VERSION.apk" \
+#              --clean
+#
+#      - name: Patch latest youtube
+#        run: |
+#          java \
+#            -jar .tmp/tools/revanced-cli.jar \
+#              --apk     .tmp/youtube/latest.apk \
+#              --bundles .tmp/tools/revanced-patches.jar \
+#              --merge   .tmp/tools/revanced-integrations.apk \
+#              --experimental \
+#              -e enable-debugging \
+#              -e custom-playback-speed \
+#              -e hide-infocard-suggestions \
+#              -e hide-time-and-seekbar \
+#              -e old-quality-layout \
+#              -e enable-wide-searchbar \
+#              -e disable-fullscreen-panels \
+#              -e hide-autoplay-button \
+#              -e hide-video-buttons \
+#              -e hide-email-address \
+#              -e tablet-mini-player \
+#              -e disable-auto-player-popup-panels \
+#              --rip-lib x86_64 \
+#              --rip-lib x86 \
+#              --rip-lib arm64-v8a \
+#              --out ".tmp/artifacts/Youtube $YT_LATEST_VERSION.apk" \
+#              --clean
+#    
+#      - name: Patch beta youtube version
+#        run: |
+#          java \
+#            -jar .tmp/tools/revanced-cli.jar \
+#              --apk     .tmp/youtube/beta.apk \
+#              --bundles .tmp/tools/revanced-patches.jar \
+#              --merge   .tmp/tools/revanced-integrations.apk \
+#              --experimental \
+#              -e enable-debugging \
+#              -e custom-playback-speed \
+#              -e hide-infocard-suggestions \
+#              -e hide-time-and-seekbar \
+#              -e old-quality-layout \
+#              -e enable-wide-searchbar \
+#              -e disable-fullscreen-panels \
+#              -e hide-autoplay-button \
+#              -e hide-video-buttons \
+#              -e hide-email-address \
+#              -e tablet-mini-player \
+#              -e disable-auto-player-popup-panels \
+#              --rip-lib x86_64 \
+#              --rip-lib x86 \
+#              --rip-lib arm64-v8a \
+#              --out ".tmp/artifacts/Youtube $YT_BETA_VERSION.apk" \
+#              --clean
+#
+#      - name: Generate release notes
+#        run: |
+#          env \
+#            revanced_cli_version=`jq -r '.version' build-tools/revanced-cli.json` \
+#            recanced_patches_version=`jq -r '.version' build-tools/revanced-patches.json` \
+#            revanced_integrations_version=`jq -r '.version' build-tools/revanced-integrations.json` \
+#            vanced_microg_url=`jq -r '.download_url' build-tools/vanced-microg.json` \
+#            envsubst < ReleaseNotesTemplate.md > .tmp/ReleaseNotes.md
+#
+#      - name: make tag
+#        id: make-tag
+#        run: |
+#          tag="$(date +%F)-$(git rev-parse --short HEAD)"
+#          git tag "$tag"
+#          echo "::set-output name=tag-name::${tag}"
+#      - name: Uploading
+#        uses: ncipollo/release-action@v1
+#        with:
+#          bodyFile: .tmp/ReleaseNotes.md
+#          artifacts: .tmp/artifacts/*.apk
+#          tag: ${{ steps.make-tag.outputs.tag-name }}
+#          token: ${{ github.token }}
+#          allowUpdates: true
