@@ -13,11 +13,10 @@ jobs:
       YT_LATEST_VERSION: 17.40.41 
       YT_FIT_VERSION: 17.36.37
     steps:
-      - run: echo hi
-#      - name: Setup Node
-#        uses: actions/setup-node@v3
-#        with: 
-#          node-version: '16'
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with: 
+          node-version: '16'
 #
 #      - name: Install NPM Dependencies
 #        run: npm ci
