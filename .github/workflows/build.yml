@@ -88,32 +88,32 @@ jobs:
 #          path: .tmp/youtube/
 #
 #      - name: Import Build Tools
-        uses: actions/download-artifact@v3
-        with:
-          name: tools
-          path: .tmp/tools/
-
-      - name: Patch youtube fit version
-        run: |
-          java \
-            -jar .tmp/tools/revanced-cli.jar \
-              --apk     .tmp/youtube/fit.apk \
-              --bundles .tmp/tools/revanced-patches.jar \
-              --merge   .tmp/tools/revanced-integrations.apk \
-              -e enable-debugging \
-              -e custom-playback-speed \
-              -e hide-infocard-suggestions \
-              -e hide-time-and-seekbar \
-              -e old-quality-layout \
-              -e enable-wide-searchbar \
-              -e disable-fullscreen-panels \
-              -e hide-autoplay-button \
-              -e hide-video-buttons \
-              -e hide-email-address \
-              -e tablet-mini-player \
-              -e disable-auto-player-popup-panels \
-              --rip-lib x86_64 \
-              --rip-lib x86 \
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: tools
+#          path: .tmp/tools/
+#
+#      - name: Patch youtube fit version
+#        run: |
+#          java \
+#            -jar .tmp/tools/revanced-cli.jar \
+#              --apk     .tmp/youtube/fit.apk \
+#              --bundles .tmp/tools/revanced-patches.jar \
+#              --merge   .tmp/tools/revanced-integrations.apk \
+#              -e enable-debugging \
+#              -e custom-playback-speed \
+#              -e hide-infocard-suggestions \
+#              -e hide-time-and-seekbar \
+#              -e old-quality-layout \
+#              -e enable-wide-searchbar \
+#              -e disable-fullscreen-panels \
+#              -e hide-autoplay-button \
+#              -e hide-video-buttons \
+#              -e hide-email-address \
+#              -e tablet-mini-player \
+#              -e disable-auto-player-popup-panels \
+#              --rip-lib x86_64 \
+#              --rip-lib x86 \
 #              --rip-lib arm64-v8a \
 #              --out ".tmp/artifacts/YouTube $YT_FIT_VERSION.apk" \
 #              --clean
