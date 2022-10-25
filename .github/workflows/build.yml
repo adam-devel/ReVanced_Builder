@@ -15,7 +15,11 @@ jobs:
     steps:
       - name: Setup Node
         uses: actions/setup-node@v3
-        with: { node-version: '16' }
+        with: 
+          - node-version: '16'
+
+      - name: Install NPM Dependencies
+        run: npm ci
 
       - name: Download Youtube Versions
         run: |
