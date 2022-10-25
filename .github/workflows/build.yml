@@ -7,7 +7,7 @@ on:
 jobs:
   test:
     steps:
-      run: echo hello
+      - run: echo hello
 #  get youtube:
 #    concurrency: download
 #    runs-on: ubuntu-latest
