@@ -33,7 +33,7 @@ jobs:
           download "$(linkfor $YT_LATEST_VERSION)" -o latest.apk
           download "$(linkfor $YT_FIT_VERSION)"    -o fit.apk
 
-      - use: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v3
         with:
           name: youtube
           path: |
@@ -41,7 +41,7 @@ jobs:
             latest.apk
             fit.apk
 
-  get build tools:
+  get_build_tools:
     concurrency: download
     runs-on: ubuntu-latest
     steps:
@@ -53,13 +53,14 @@ jobs:
             `jq -r '.download_url' build-tools/revanced-patches.json`
           curl -sL -o revanced-integrations.apk \
             `jq -r '.download_url' build-tools/revanced-integrations.json`
-      - use: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v3
         with:
           name: tools
           path: |
             revanced-cli.jar
             revanced-patches.jar
             revanced-integrations.apk 
+
   patch:
     runs-on: ubuntu-latest
     env:
