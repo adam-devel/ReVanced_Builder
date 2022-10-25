@@ -50,12 +50,12 @@ jobs:
           curl -sL -o revanced-integrations.apk \
             `jq -r '.download_url' build-tools/revanced-integrations.json`
       - use: actions/upload-artifact@v3
-          with:
-            name: tools
-            path: |
-              revanced-cli.jar
-              revanced-patches.jar
-              revanced-integrations.apk 
+        with:
+          name: tools
+          path: |
+            revanced-cli.jar
+            revanced-patches.jar
+            revanced-integrations.apk 
 
 #  patch:
 #    runs-on: ubuntu-latest
