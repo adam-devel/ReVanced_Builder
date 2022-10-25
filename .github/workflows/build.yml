@@ -32,14 +32,14 @@ jobs:
           download "$(linkfor $YT_BETA_VERSION)"   -o beta.apk
           download "$(linkfor $YT_LATEST_VERSION)" -o latest.apk
           download "$(linkfor $YT_FIT_VERSION)"    -o fit.apk
-#
-#        - use: actions/upload-artifact@v3
-#          with:
-#            name: youtube
-#            path: |
-#              beta.apk
-#              latest.apk
-#              fit.apk
+
+        - use: actions/upload-artifact@v3
+          with:
+            name: youtube
+            path: |
+              beta.apk
+              latest.apk
+              fit.apk
 
 #  get build tools:
 #    concurrency: download
