@@ -6,7 +6,6 @@ on:
 
 jobs:
   get_youtube:
-    concurrency: download
     runs-on: ubuntu-latest
     env:
       YT_BETA_VERSION: 17.41.36
@@ -27,9 +26,9 @@ jobs:
       - name: Download Youtube Versions
         run: |
           useragent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'
-          curl -sL -A $useragent "$(node scrape-youtube-download-link.mjs $YT_BETA_VERSION)"   -o beta.apk
-          curl -sL -A $useragent "$(node scrape-youtube-download-link.mjs $YT_LATEST_VERSION)" -o latest.apk
-          curl -sL -A $useragent "$(node scrape-youtube-download-link.mjs $YT_FIT_VERSION)"    -o fit.apk
+          curl -sL -o beta.apk -A $useragent "$(node scrape-youtube-download-link.mjs $YT_BETA_VERSION)"   
+          curl -sL -o latest.apk -A $useragent "$(node scrape-youtube-download-link.mjs $YT_LATEST_VERSION)" 
+          curl -sL -o fit.apk -A $useragent "$(node scrape-youtube-download-link.mjs $YT_FIT_VERSION)"    
 
       - uses: actions/upload-artifact@v3
         with:
@@ -40,7 +39,6 @@ jobs:
             fit.apk
 
   get_build_tools:
-    concurrency: download
     runs-on: ubuntu-latest
     steps:
       - name: Download ReVanced tools
@@ -60,6 +58,9 @@ jobs:
             revanced-integrations.apk 
 
   patch:
+    needs:
+      - get_youtube
+      - get_build_tools
     runs-on: ubuntu-latest
     env:
       YT_BETA_VERSION: 17.41.36
