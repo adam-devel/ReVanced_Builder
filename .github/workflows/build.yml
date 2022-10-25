@@ -28,9 +28,9 @@ jobs:
         run: |
           useragent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'
           alias download="curl -sL -A $useragent"
-          download "$(scrape-youtube-download-link.mjs $YT_BETA_VERSION)"   -o beta.apk
-          download "$(scrape-youtube-download-link.mjs $YT_LATEST_VERSION)" -o latest.apk
-          download "$(scrape-youtube-download-link.mjs $YT_FIT_VERSION)"    -o fit.apk
+          download "$(./scrape-youtube-download-link.mjs $YT_BETA_VERSION)"   -o beta.apk
+          download "$(./scrape-youtube-download-link.mjs $YT_LATEST_VERSION)" -o latest.apk
+          download "$(./scrape-youtube-download-link.mjs $YT_FIT_VERSION)"    -o fit.apk
 
       - uses: actions/upload-artifact@v3
         with:
