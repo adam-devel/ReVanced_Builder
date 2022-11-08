@@ -59,7 +59,7 @@ jobs:
           echo ::set-output name=youtube_beta_url::$(node scrape-youtube-download-link.mjs $yt_beta_version)
           echo ::set-output name=youtube_latest_url::$(node scrape-youtube-download-link.mjs $yt_latest_version)
           echo ::set-output name=youtube_fit_url::$(node scrape-youtube-download-link.mjs $yt_fit_version)
-          echo ::set-output name=cli_url::$(jq -r <<< $jhc_cli_data '.assets[0].browser_download_url')
+          echo ::set-output name=cli_url::$(jq -r <<< $jhc_cli '.assets[0].browser_download_url')
           #echo ::set-output name=cli_url::$(jq -r <<< $revanced_cli '.browser_download_url')
           echo ::set-output name=patches_url::$(jq -r <<< $revanced_patches '.browser_download_url')
           echo ::set-output name=integrations_url::$(jq -r <<< $revanced_integrations '.browser_download_url')
@@ -68,7 +68,7 @@ jobs:
           echo ::set-output name=youtube_beta_version::$yt_beta_version
           echo ::set-output name=youtube_latest_version::$yt_latest_version
           echo ::set-output name=youtube_fit_version::$yt_fit_version
-          echo ::set-output name=cli_version::$(jq -r <<< $jhc_cli_data '.name')
+          echo ::set-output name=cli_version::$(jq -r <<< $jhc_cli '.name')
           #echo ::set-output name=cli_version::$(jq -r <<< $revanced_cli '.version')
           echo ::set-output name=patches_version::$(jq -r <<< $revanced_patches '.version')
           echo ::set-output name=integrations_version::$(jq -r <<< $revanced_integrations '.version')

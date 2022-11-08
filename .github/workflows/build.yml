@@ -42,6 +42,7 @@ on:
         type: string
 jobs:
   download:
+    name: 'download, build and release'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
