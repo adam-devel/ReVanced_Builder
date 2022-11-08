@@ -13,21 +13,22 @@ jobs:
       yt_latest_version: 17.43.37 
       yt_fit_version:    17.43.36
     outputs:
-      youtube_beta_url: "${{ steps.scrape.outputs.youtube_beta_url }}"
-      youtube_latest_url: "${{ steps.scrape.outputs.youtube_latest_url }}"
-      youtube_fit_url: "${{ steps.scrape.outputs.youtube_fit_url }}"
-      cli_url: "${{ steps.scrape.outputs.cli_url }}"
-      patches_url: "${{ steps.scrape.outputs.patches_url }}"
-      integrations_url: "${{ steps.scrape.outputs.integrations_url }}"
-
-      youtube_beta_version: "${{ steps.scrape.outputs.youtube_beta_version }}"
+      # Download urls
+      youtube_beta_url:       "${{ steps.scrape.outputs.youtube_beta_url }}"
+      youtube_latest_url:     "${{ steps.scrape.outputs.youtube_latest_url }}"
+      youtube_fit_url:        "${{ steps.scrape.outputs.youtube_fit_url }}"
+      cli_url:                "${{ steps.scrape.outputs.cli_url }}"
+      patches_url:            "${{ steps.scrape.outputs.patches_url }}"
+      integrations_url:       "${{ steps.scrape.outputs.integrations_url }}"
+      # Version informations
+      youtube_beta_version:   "${{ steps.scrape.outputs.youtube_beta_version }}"
       youtube_latest_version: "${{ steps.scrape.outputs.youtube_latest_version }}"
-      youtube_fit_version: "${{ steps.scrape.outputs.youtube_fit_version }}"
-      cli_version: "${{ steps.scrape.outputs.cli_version }}"
-      patches_version: "${{ steps.scrape.outputs.patches_version }}"
-      integrations_version: "${{ steps.scrape.outputs.integrations_version }}"
-
-      should_update: "${{ steps.compare.outputs.is_modified }}"
+      youtube_fit_version:    "${{ steps.scrape.outputs.youtube_fit_version }}"
+      cli_version:            "${{ steps.scrape.outputs.cli_version }}"
+      patches_version:        "${{ steps.scrape.outputs.patches_version }}"
+      integrations_version:   "${{ steps.scrape.outputs.integrations_version }}"
+      # Conditions
+      should_update:          "${{ steps.compare.outputs.is_modified }}"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -44,45 +45,45 @@ jobs:
           revanced_endpoint=https://releases.rvcd.win/tools
           github_endpoint=https://api.github.com
 
-          # Get revanced tools metadata
-          revanced_json_data=$(jq -r .tools <<< "$(curl -sL $revanced_endpoint)")
-          revanced_cli=$(jq -r <<< $revanced_json_data '.[1]')
-          revanced_patches=$(jq -r <<< $revanced_json_data '.[4]')
+          # Gather metadata
+             revanced_json_data=$(jq -r .tools <<< "$(curl -sL $revanced_endpoint)")
+                   revanced_cli=$(jq -r <<< $revanced_json_data '.[1]')
+               revanced_patches=$(jq -r <<< $revanced_json_data '.[4]')
           revanced_integrations=$(jq -r <<< $revanced_json_data '.[5]')
-          # Get JHC's cli metadata
-          jhc_cli=$(curl -sL \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            "${github_endpoint}/repos/j-hc/revanced-cli/releases/latest")
+                        jhc_cli=$(curl -sL \
+                          -H "Accept: application/vnd.github+json" \
+                          -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                          "${github_endpoint}/repos/j-hc/revanced-cli/releases/latest"\
+                        )
 
           # Output download Urls
-          echo ::set-output name=youtube_beta_url::$(node scrape-youtube-download-link.mjs $yt_beta_version)
-          echo ::set-output name=youtube_latest_url::$(node scrape-youtube-download-link.mjs $yt_latest_version)
-          echo ::set-output name=youtube_fit_url::$(node scrape-youtube-download-link.mjs $yt_fit_version)
-          echo ::set-output name=cli_url::$(jq -r <<< $jhc_cli '.assets[0].browser_download_url')
-          #echo ::set-output name=cli_url::$(jq -r <<< $revanced_cli '.browser_download_url')
-          echo ::set-output name=patches_url::$(jq -r <<< $revanced_patches '.browser_download_url')
-          echo ::set-output name=integrations_url::$(jq -r <<< $revanced_integrations '.browser_download_url')
+          echo   youtube_beta_url=$(node scrape-youtube-download-link.mjs $yt_beta_version)   >> $GITHUB_OUTPUT
+          echo youtube_latest_url=$(node scrape-youtube-download-link.mjs $yt_latest_version) >> $GITHUB_OUTPUT
+          echo    youtube_fit_url=$(node scrape-youtube-download-link.mjs $yt_fit_version)    >> $GITHUB_OUTPUT
+          echo        patches_url=$(jq -r <<< $revanced_patches '.browser_download_url')      >> $GITHUB_OUTPUT
+          echo   integrations_url=$(jq -r <<< $revanced_integrations '.browser_download_url') >> $GITHUB_OUTPUT
+          echo            cli_url=$(jq -r <<< $jhc_cli '.assets[0].browser_download_url')     >> $GITHUB_OUTPUT
+          #echo            cli_url=$(jq -r <<< $revanced_cli '.browser_download_url')          >> $GITHUB_OUTPUT
 
           # Output versions
-          echo ::set-output name=youtube_beta_version::$yt_beta_version
-          echo ::set-output name=youtube_latest_version::$yt_latest_version
-          echo ::set-output name=youtube_fit_version::$yt_fit_version
-          echo ::set-output name=cli_version::$(jq -r <<< $jhc_cli '.name')
-          #echo ::set-output name=cli_version::$(jq -r <<< $revanced_cli '.version')
-          echo ::set-output name=patches_version::$(jq -r <<< $revanced_patches '.version')
-          echo ::set-output name=integrations_version::$(jq -r <<< $revanced_integrations '.version')
+          echo   youtube_beta_version=$yt_beta_version                               >> $GITHUB_OUTPUT
+          echo youtube_latest_version=$yt_latest_version                             >> $GITHUB_OUTPUT
+          echo    youtube_fit_version=$yt_fit_version                                >> $GITHUB_OUTPUT
+          echo        patches_version=$(jq -r <<< $revanced_patches '.version')      >> $GITHUB_OUTPUT
+          echo   integrations_version=$(jq -r <<< $revanced_integrations '.version') >> $GITHUB_OUTPUT
+          echo            cli_version=$(jq -r <<< $jhc_cli '.name')                  >> $GITHUB_OUTPUT
+          #echo            cli_version=$(jq -r <<< $revanced_cli '.version')          >> $GITHUB_OUTPUT
 
           # Update versions
           mkdir -p versions
-          jq -r '.version' <<< $revanced_cli          > versions/revanced-cli.json 
-          jq -r '.version' <<< $revanced_patches      > versions/revanced-patches.json 
-          jq -r '.version' <<< $revanced_integrations > versions/revanced-integrations.json 
-          jq -r '.name'    <<< $jhc_cli               > versions/jhc-cli.json 
+          jq > versions/revanced-cli.json          -r '.version' <<< $revanced_cli         
+          jq > versions/revanced-patches.json      -r '.version' <<< $revanced_patches     
+          jq > versions/revanced-integrations.json -r '.version' <<< $revanced_integrations
+          jq > versions/jhc-cli.json               -r '.name'    <<< $jhc_cli              
 
       - name: Compare
         id: compare
-        run: echo ::set-output name=is_modified::$([ -z "`git status --porcelain`" ] && echo "no" || echo "yes")
+        run: echo is_modified=$([ -z "`git status --porcelain`" ] && echo "no" || echo "yes") >> $GITHUB_OUTPUT
 
       - name: Commit the updates
         if: steps.compare.outputs.is_modified == 'yes'
@@ -91,21 +92,20 @@ jobs:
           add: 'build-tools'
           message: automated update
           push: true
-          
   build:
     needs: query
     if: needs.query.outputs.should_update == 'yes'
     uses: ./.github/workflows/build.yml
     with: 
-      youtube_beta_url: "${{ needs.query.outputs.youtube_beta_url }}"
-      youtube_latest_url: "${{ needs.query.outputs.youtube_latest_url }}"
-      youtube_fit_url: "${{ needs.query.outputs.youtube_fit_url }}"
-      cli_url: "${{ needs.query.outputs.cli_url }}"
-      patches_url: "${{ needs.query.outputs.patches_url }}"
-      integrations_url: "${{ needs.query.outputs.integrations_url }}"
-      youtube_beta_version: "${{ needs.query.outputs.youtube_beta_version }}"
-      youtube_latest_version: "${{ needs.query.outputs.youtube_latest_version }}"
-      youtube_fit_version: "${{ needs.query.outputs.youtube_fit_version }}"
-      cli_version: "${{ needs.query.outputs.cli_version }}"
-      patches_version: "${{ needs.query.outputs.patches_version }}"
-      integrations_version: "${{ needs.query.outputs.integrations_version }}"
+      youtube_beta_url:        "${{ needs.query.outputs.youtube_beta_url }}"
+      youtube_latest_url:      "${{ needs.query.outputs.youtube_latest_url }}"
+      youtube_fit_url:         "${{ needs.query.outputs.youtube_fit_url }}"
+      cli_url:                 "${{ needs.query.outputs.cli_url }}"
+      patches_url:             "${{ needs.query.outputs.patches_url }}"
+      integrations_url:        "${{ needs.query.outputs.integrations_url }}"
+      youtube_beta_version:    "${{ needs.query.outputs.youtube_beta_version }}"
+      youtube_latest_version:  "${{ needs.query.outputs.youtube_latest_version }}"
+      youtube_fit_version:     "${{ needs.query.outputs.youtube_fit_version }}"
+      cli_version:             "${{ needs.query.outputs.cli_version }}"
+      patches_version:         "${{ needs.query.outputs.patches_version }}"
+      integrations_version:    "${{ needs.query.outputs.integrations_version }}"

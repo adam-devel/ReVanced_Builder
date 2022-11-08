@@ -56,12 +56,12 @@ jobs:
         run: |
           # Youtube
           useragent='Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)'
-          curl -sL -A "$useragent" -o .tmp/youtube/beta.apk '${{inputs.youtube_beta_url}}'
-          curl -sL -A "$useragent" -o .tmp/youtube/latest.apk '${{inputs.youtube_latest_url}}'
-          curl -sL -A "$useragent" -o .tmp/youtube/fit.apk '${{inputs.youtube_fit_url}}'
+          curl -sL -A "$useragent" -o .tmp/youtube/beta.apk       '${{inputs.youtube_beta_url}}'
+          curl -sL -A "$useragent" -o .tmp/youtube/latest.apk     '${{inputs.youtube_latest_url}}'
+          curl -sL -A "$useragent" -o .tmp/youtube/fit.apk        '${{inputs.youtube_fit_url}}'
           # Tools
-          curl -sL -A "$useragent" -o .tmp/tools/cli.jar '${{inputs.cli_url}}'
-          curl -sL -A "$useragent" -o .tmp/tools/patches.jar '${{inputs.patches_url}}'
+          curl -sL -A "$useragent" -o .tmp/tools/cli.jar          '${{inputs.cli_url}}'
+          curl -sL -A "$useragent" -o .tmp/tools/patches.jar      '${{inputs.patches_url}}'
           curl -sL -A "$useragent" -o .tmp/tools/integrations.apk '${{inputs.integrations_url}}'
       - name: Setup Java
         uses: actions/setup-java@v3
@@ -155,7 +155,7 @@ jobs:
         run: |
           tag="$(date +%F)-$(git rev-parse --short HEAD)"
           git tag "$tag"
-          echo "::set-output name=tag-name::${tag}"
+          echo tag-name=$tag >> $GITHUB_OUTPUT
       - name: Upload
         uses: ncipollo/release-action@v1
         with:
