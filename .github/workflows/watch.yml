@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       yt_beta_version:   17.41.36
-      yt_latest_version: 17.40.41 
+      yt_latest_version: 17.40.41
       yt_fit_version:    17.36.37
     outputs:
       youtube_beta_url: "${{ steps.scrape.outputs.youtube_beta_url }}"
@@ -50,20 +50,19 @@ jobs:
           revanced_patches=$(jq -r <<< $revanced_json_data '.[4]')
           revanced_integrations=$(jq -r <<< $revanced_json_data '.[5]')
           # Get JHC's cli metadata
-          echo ::set-output name=integrations_version::$(jq -r <<< $revanced_integrations 'version')
           jhc_cli=$(curl -sL \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             "${github_endpoint}/repos/j-hc/revanced-cli/releases/latest")
 
           # Output download Urls
-          echo ::set-output name=youtube_beta_url::$(node scrape-youtube-download-link.mjs $YT_BETA_VERSION)
-          echo ::set-output name=youtube_latest_url::$(node scrape-youtube-download-link.mjs $YT_LATEST_VERSION)
-          echo ::set-output name=youtube_fit_url::$(node scrape-youtube-download-link.mjs $YT_FIT_VERSION)
+          echo ::set-output name=youtube_beta_url::$(node scrape-youtube-download-link.mjs $yt_beta_version)
+          echo ::set-output name=youtube_latest_url::$(node scrape-youtube-download-link.mjs $yt_latest_version)
+          echo ::set-output name=youtube_fit_url::$(node scrape-youtube-download-link.mjs $yt_fit_version)
             #echo ::set-output name=cli::$(jq -r <<< $jhc_cli_data '.assets[0].browser_download_url')
-          echo ::set-output name=cli_url::$(jq -r <<< $revanced_cli 'download_url')
-          echo ::set-output name=patches_url::$(jq -r <<< $revanced_patches 'download_url')
-          echo ::set-output name=integrations_url::$(jq -r <<< $revanced_integrations 'download_url')
+          echo ::set-output name=cli_url::$(jq -r <<< $revanced_cli '.browser_download_url')
+          echo ::set-output name=patches_url::$(jq -r <<< $revanced_patches '.browser_download_url')
+          echo ::set-output name=integrations_url::$(jq -r <<< $revanced_integrations '.browser_download_url')
 
           # Output versions
           echo ::set-output name=youtube_beta_version::$yt_beta_version
