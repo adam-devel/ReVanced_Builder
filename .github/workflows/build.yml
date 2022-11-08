@@ -44,6 +44,8 @@ jobs:
   download:
     name: Download and patch
     runs-on: ubuntu-latest
+    env:
+      patches: 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -56,88 +58,60 @@ jobs:
         run: |
           # Youtube
           useragent='Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)'
-          curl -sL -A "$useragent" -o .tmp/youtube/beta.apk '${{inputs.youtube_beta_url}}'
-          curl -sL -A "$useragent" -o .tmp/youtube/latest.apk '${{inputs.youtube_latest_url}}'
-          curl -sL -A "$useragent" -o .tmp/youtube/fit.apk '${{inputs.youtube_fit_url}}'
+          curl -sL -A "$useragent" -o .tmp/youtube/beta.apk       '${{inputs.youtube_beta_url}}'
+          curl -sL -A "$useragent" -o .tmp/youtube/latest.apk     '${{inputs.youtube_latest_url}}'
+          curl -sL -A "$useragent" -o .tmp/youtube/fit.apk        '${{inputs.youtube_fit_url}}'
           # Tools
-          curl -sL -A "$useragent" -o .tmp/tools/cli.jar '${{inputs.cli_url}}'
-          curl -sL -A "$useragent" -o .tmp/tools/patches.jar '${{inputs.patches_url}}'
+          curl -sL -A "$useragent" -o .tmp/tools/cli.jar          '${{inputs.cli_url}}'
+          curl -sL -A "$useragent" -o .tmp/tools/patches.jar      '${{inputs.patches_url}}'
           curl -sL -A "$useragent" -o .tmp/tools/integrations.apk '${{inputs.integrations_url}}'
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: '17'
+      - name: Specify patches
+        id: patches
+        run: |
+          echo list=$(while read -r line; do [ "${line:0:1}" = "#" ] && continue; echo "-i"; echo "$line"; done < ./patches) >> $GITHUB_OUTPUT
+
       - name: Patch youtube fit version
         run: |
           java \
-            -jar .tmp/tools/cli.jar \
-              --apk     .tmp/youtube/fit.apk \
-              --bundles .tmp/tools/patches.jar \
-              --merge   .tmp/tools/integrations.apk \
-              -e enable-debugging \
-              -e custom-playback-speed \
-              -e hide-infocard-suggestions \
-              -e hide-time-and-seekbar \
-              -e old-quality-layout \
-              -e enable-wide-searchbar \
-              -e disable-fullscreen-panels \
-              -e hide-autoplay-button \
-              -e hide-video-buttons \
-              -e hide-email-address \
-              -e tablet-mini-player \
-              -e disable-auto-player-popup-panels \
-              --rip-lib x86_64 --rip-lib x86 --rip-lib arm64-v8a \
-              --out ".tmp/artifacts/YouTube-${{ inputs.youtube_fit_version }}.apk" \
-              --clean
+            -jar .tmp/tools/cli.jar                                                   \
+              --apk     .tmp/youtube/fit.apk                                          \
+              --bundles .tmp/tools/patches.jar                                        \
+              --merge   .tmp/tools/integrations.apk                                   \
+              --exclusive                                                             \
+              ${{ steps.patches.outputs.list }}                                       \
+              --rip-lib x86_64 --rip-lib x86 --rip-lib arm64-v8a                      \
+              --out ".tmp/artifacts/YouTube-${{ inputs.youtube_fit_version }}.apk"
 
       - name: Patch latest youtube
         run: |
-          java \
-            -jar .tmp/tools/cli.jar \
-              --apk     .tmp/youtube/latest.apk \
-              --bundles .tmp/tools/patches.jar \
-              --merge   .tmp/tools/integrations.apk \
-              --experimental \
-              -e enable-debugging \
-              -e custom-playback-speed \
-              -e hide-infocard-suggestions \
-              -e hide-time-and-seekbar \
-              -e old-quality-layout \
-              -e enable-wide-searchbar \
-              -e disable-fullscreen-panels \
-              -e hide-autoplay-button \
-              -e hide-video-buttons \
-              -e hide-email-address \
-              -e tablet-mini-player \
-              -e disable-auto-player-popup-panels \
-              --rip-lib x86_64 --rip-lib x86 --rip-lib arm64-v8a \
-              --out ".tmp/artifacts/Youtube-${{ inputs.youtube_latest_version }}.apk" \
-              --clean
-    
+          java                                                                        \
+            -jar .tmp/tools/cli.jar                                                   \
+              --apk     .tmp/youtube/latest.apk                                       \
+              --bundles .tmp/tools/patches.jar                                        \
+              --merge   .tmp/tools/integrations.apk                                   \
+              --experimental                                                          \
+              --exclusive                                                             \
+              ${{ steps.patches.outputs.list }}                                       \
+              --rip-lib x86_64 --rip-lib x86 --rip-lib arm64-v8a                      \
+              --out ".tmp/artifacts/Youtube-${{ inputs.youtube_latest_version }}.apk"
+
       - name: Patch beta youtube version
         run: |
-          java \
-            -jar .tmp/tools/cli.jar \
-              --apk     .tmp/youtube/beta.apk \
-              --bundles .tmp/tools/patches.jar \
-              --merge   .tmp/tools/integrations.apk \
-              --experimental \
-              -e enable-debugging \
-              -e custom-playback-speed \
-              -e hide-infocard-suggestions \
-              -e hide-time-and-seekbar \
-              -e old-quality-layout \
-              -e enable-wide-searchbar \
-              -e disable-fullscreen-panels \
-              -e hide-autoplay-button \
-              -e hide-video-buttons \
-              -e hide-email-address \
-              -e tablet-mini-player \
-              -e disable-auto-player-popup-panels \
-              --rip-lib x86_64 --rip-lib x86 --rip-lib arm64-v8a \
-              --out ".tmp/artifacts/Youtube-${{ inputs.youtube_beta_version }}.apk" \
-              --clean
+          java                                                                        \
+            -jar .tmp/tools/cli.jar                                                   \
+              --apk     .tmp/youtube/beta.apk                                         \
+              --bundles .tmp/tools/patches.jar                                        \
+              --merge   .tmp/tools/integrations.apk                                   \
+              --experimental                                                          \
+              --exclusive                                                             \
+              ${{ steps.patches.outputs.list }}                                       \
+              --rip-lib x86_64 --rip-lib x86 --rip-lib arm64-v8a                      \
+              --out ".tmp/artifacts/Youtube-${{ inputs.youtube_beta_version }}.apk"
 
       - name: Generate release notes
         run: |
@@ -155,7 +129,7 @@ jobs:
         run: |
           tag="$(date +%F)-$(git rev-parse --short HEAD)"
           git tag "$tag"
-          echo "::set-output name=tag-name::${tag}"
+          echo tag-name=$tag >> $GITHUB_OUTPUT
       - name: Upload
         uses: ncipollo/release-action@v1
         with:
