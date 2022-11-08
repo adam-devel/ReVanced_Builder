@@ -63,6 +63,7 @@ jobs:
           curl -sL -A "$useragent" -o .tmp/tools/patches.jar ${{inputs.patches_url}}
           curl -sL -A "$useragent" -o .tmp/tools/integrations.apk ${{inputs.integrations_url}}
   patch:
+    needs: download
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
