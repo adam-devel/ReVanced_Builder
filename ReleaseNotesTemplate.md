@@ -6,8 +6,8 @@ build tools:
 * ReVanced Integrations $revanced_integrations_version
 
 youtube:
-* :white_check_mark: recommended $yt_fit
-* :warning: latest $yt_latest
-* :construction: beta $yt_beta
+* :white_check_mark: recommended $youtube_fit_version
+* :warning: latest $youtube_latest_version
+* :construction: beta $youtube_beta_version
 
 download vanced microg from [here]($vanced_microg_url)

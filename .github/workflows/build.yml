@@ -3,104 +3,82 @@ name: Patch and release youtube
 on:
   workflow_dispatch:
   workflow_call:
-
+    inputs:
+      youtube_beta_url:
+        required: true
+        type: string
+      youtube_latest_url:
+        required: true
+        type: string
+      youtube_fit_url:
+        required: true
+        type: string
+      cli_url:
+        required: true
+        type: string
+      patches_url:
+        required: true
+        type: string
+      integrations_url:
+        required: true
+        type: string
+      youtube_beta_version:
+        required: true
+        type: string
+      youtube_latest_version:
+        required: true
+        type: string
+      youtube_fit_version:
+        required: true
+        type: string
+      cli_version:
+        required: true
+        type: string
+      patches_version:
+        required: true
+        type: string
+      integrations_version:
+        required: true
+        type: string
 jobs:
-  get_youtube:
+  download:
     runs-on: ubuntu-latest
-    env:
-      YT_BETA_VERSION: 17.41.36
-      YT_LATEST_VERSION: 17.40.41 
-      YT_FIT_VERSION: 17.36.37
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with: 
-          node-version: '16'
-
-      - name: Install NPM Dependencies
-        run: npm ci
-
-      - name: Download Youtube Versions
-        run: |
-          useragent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'
-          curl -sL -o beta.apk -A $useragent "$(node scrape-youtube-download-link.mjs $YT_BETA_VERSION)"   
-          curl -sL -o latest.apk -A $useragent "$(node scrape-youtube-download-link.mjs $YT_LATEST_VERSION)" 
-          curl -sL -o fit.apk -A $useragent "$(node scrape-youtube-download-link.mjs $YT_FIT_VERSION)"    
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: youtube
-          path: |
-            beta.apk
-            latest.apk
-            fit.apk
-
-  get_build_tools:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download ReVanced tools
-        run: |
-          curl -sL -o revanced-cli.jar \
-            `jq -r '.download_url' build-tools/jhc-revanced-cli.json`
-          curl -sL -o revanced-patches.jar \
-            `jq -r '.download_url' build-tools/revanced-patches.json`
-          curl -sL -o revanced-integrations.apk \
-            `jq -r '.download_url' build-tools/revanced-integrations.json`
-      - uses: actions/upload-artifact@v3
-        with:
-          name: tools
-          path: |
-            revanced-cli.jar
-            revanced-patches.jar
-            revanced-integrations.apk 
-
-  patch:
-    needs:
-      - get_youtube
-      - get_build_tools
-    runs-on: ubuntu-latest
-    env:
-      YT_BETA_VERSION: 17.41.36
-      YT_LATEST_VERSION: 17.40.41 
-      YT_FIT_VERSION: 17.36.37
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        
-      - name: Setup Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-            
       - name: Create Temporary Directory Structure
         run: |
           mkdir -p .tmp/youtube
           mkdir -p .tmp/tools
           mkdir -p .tmp/artifacts
-          
-      - name: Import Youtube APKs
-        uses: actions/download-artifact@v3
+      - name: Download Youtube and ReVanced tools
+        run: |
+          # Youtube
+          useragent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'
+          curl -sL -A $useragent -o .tmp/youtube/beta.apk ${{inputs.youtube_beta_url}}
+          curl -sL -A $useragent -o .tmp/youtube/latest.apk ${{inputs.youtube_latest_url}}
+          curl -sL -A $useragent -o .tmp/youtube/fit.apk ${{inputs.youtube_fit_url}}
+          # Tools
+          curl -sL -A $useragent -o .tmp/tools/cli.jar ${{inputs.cli_url}}
+          curl -sL -A $useragent -o .tmp/tools/patches.jar ${{inputs.patches_url}}
+          curl -sL -A $useragent -o .tmp/tools/integrations.apk ${{inputs.integrations_url}}
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Java
+        uses: actions/setup-java@v3
         with:
-          name: youtube 
-          path: .tmp/youtube/
-
-      - name: Import Build Tools
-        uses: actions/download-artifact@v3
-        with:
-          name: tools
-          path: .tmp/tools/
-
+          distribution: 'zulu'
+          java-version: '17'
       - name: Patch youtube fit version
         run: |
           java \
-            -jar .tmp/tools/revanced-cli.jar \
+            -jar .tmp/tools/cli.jar \
               --apk     .tmp/youtube/fit.apk \
-              --bundles .tmp/tools/revanced-patches.jar \
-              --merge   .tmp/tools/revanced-integrations.apk \
+              --bundles .tmp/tools/patches.jar \
+              --merge   .tmp/tools/integrations.apk \
               -e enable-debugging \
               -e custom-playback-speed \
               -e hide-infocard-suggestions \
@@ -116,16 +94,16 @@ jobs:
               --rip-lib x86_64 \
               --rip-lib x86 \
               --rip-lib arm64-v8a \
-              --out ".tmp/artifacts/YouTube $YT_FIT_VERSION.apk" \
+              --out ".tmp/artifacts/YouTube ${{ input.youtube_fit_version }}.apk" \
               --clean
 
       - name: Patch latest youtube
         run: |
           java \
-            -jar .tmp/tools/revanced-cli.jar \
+            -jar .tmp/tools/cli.jar \
               --apk     .tmp/youtube/latest.apk \
-              --bundles .tmp/tools/revanced-patches.jar \
-              --merge   .tmp/tools/revanced-integrations.apk \
+              --bundles .tmp/tools/patches.jar \
+              --merge   .tmp/tools/integrations.apk \
               --experimental \
               -e enable-debugging \
               -e custom-playback-speed \
@@ -142,16 +120,16 @@ jobs:
               --rip-lib x86_64 \
               --rip-lib x86 \
               --rip-lib arm64-v8a \
-              --out ".tmp/artifacts/Youtube $YT_LATEST_VERSION.apk" \
+              --out ".tmp/artifacts/Youtube ${{ input.youtube_latest_version }}.apk" \
               --clean
     
       - name: Patch beta youtube version
         run: |
           java \
-            -jar .tmp/tools/revanced-cli.jar \
+            -jar .tmp/tools/cli.jar \
               --apk     .tmp/youtube/beta.apk \
-              --bundles .tmp/tools/revanced-patches.jar \
-              --merge   .tmp/tools/revanced-integrations.apk \
+              --bundles .tmp/tools/patches.jar \
+              --merge   .tmp/tools/integrations.apk \
               --experimental \
               -e enable-debugging \
               -e custom-playback-speed \
@@ -168,25 +146,27 @@ jobs:
               --rip-lib x86_64 \
               --rip-lib x86 \
               --rip-lib arm64-v8a \
-              --out ".tmp/artifacts/Youtube $YT_BETA_VERSION.apk" \
+              --out ".tmp/artifacts/Youtube ${{ input.youtube_beta_version }}.apk" \
               --clean
 
       - name: Generate release notes
         run: |
           env \
-            revanced_cli_version=`jq -r '.version' build-tools/revanced-cli.json` \
-            recanced_patches_version=`jq -r '.version' build-tools/revanced-patches.json` \
-            revanced_integrations_version=`jq -r '.version' build-tools/revanced-integrations.json` \
-            vanced_microg_url=`jq -r '.download_url' build-tools/vanced-microg.json` \
+            revanced_cli_version=${{ input.cli_version }} \
+            recanced_patches_version=${{ input.patches_version }} \
+            revanced_integrations_version=${{ input.integrations_version }} \
+            youtube_beta_version=${{ input.youtube_beta_version }}
+            youtube_latest_version=${{ input.youtube_latest_version }}
+            youtube_fit_version=${{ input.youtube_fit_version }}
             envsubst < ReleaseNotesTemplate.md > .tmp/ReleaseNotes.md
 
-      - name: make tag
+      - name: Make tag
         id: make-tag
         run: |
           tag="$(date +%F)-$(git rev-parse --short HEAD)"
           git tag "$tag"
           echo "::set-output name=tag-name::${tag}"
-      - name: Uploading
+      - name: Upload
         uses: ncipollo/release-action@v1
         with:
           bodyFile: .tmp/ReleaseNotes.md
