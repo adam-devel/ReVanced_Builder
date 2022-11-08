@@ -42,7 +42,7 @@ on:
         type: string
 jobs:
   download:
-    name: 'download, patch and release'
+    name: Download and patch
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -87,9 +87,9 @@ jobs:
               -e hide-email-address \
               -e tablet-mini-player \
               -e disable-auto-player-popup-panels \
+              --rip-lib x86_64 --rip-lib x86 --rip-lib arm64-v8a \
               --out ".tmp/artifacts/YouTube-${{ inputs.youtube_fit_version }}.apk" \
               --clean
-              #--rip-lib x86_64 --rip-lib x86 --rip-lib arm64-v8a \
 
       - name: Patch latest youtube
         run: |
@@ -111,9 +111,9 @@ jobs:
               -e hide-email-address \
               -e tablet-mini-player \
               -e disable-auto-player-popup-panels \
+              --rip-lib x86_64 --rip-lib x86 --rip-lib arm64-v8a \
               --out ".tmp/artifacts/Youtube-${{ inputs.youtube_latest_version }}.apk" \
               --clean
-              #--rip-lib x86_64 --rip-lib x86 --rip-lib arm64-v8a \
     
       - name: Patch beta youtube version
         run: |
@@ -135,9 +135,9 @@ jobs:
               -e hide-email-address \
               -e tablet-mini-player \
               -e disable-auto-player-popup-panels \
+              --rip-lib x86_64 --rip-lib x86 --rip-lib arm64-v8a \
               --out ".tmp/artifacts/Youtube-${{ inputs.youtube_beta_version }}.apk" \
               --clean
-              #--rip-lib x86_64 --rip-lib x86 --rip-lib arm64-v8a \
 
       - name: Generate release notes
         run: |
