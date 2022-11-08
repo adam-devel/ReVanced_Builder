@@ -150,9 +150,9 @@ jobs:
             revanced_cli_version=${{ inputs.cli_version }} \
             recanced_patches_version=${{ inputs.patches_version }} \
             revanced_integrations_version=${{ inputs.integrations_version }} \
-            youtube_beta_version=${{ inputs.youtube_beta_version }}
-            youtube_latest_version=${{ inputs.youtube_latest_version }}
-            youtube_fit_version=${{ inputs.youtube_fit_version }}
+            youtube_beta_version=${{ inputs.youtube_beta_version }} \
+            youtube_latest_version=${{ inputs.youtube_latest_version }} \
+            youtube_fit_version=${{ inputs.youtube_fit_version }} \
             envsubst < ReleaseNotesTemplate.md > .tmp/ReleaseNotes.md
 
       - name: Make tag
