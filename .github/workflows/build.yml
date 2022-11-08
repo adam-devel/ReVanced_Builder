@@ -1,4 +1,4 @@
-name: Patch and release youtube
+name: Patch
 
 on:
   workflow_dispatch:
@@ -42,7 +42,7 @@ on:
         type: string
 jobs:
   download:
-    name: 'download, build and release'
+    name: 'download, patch and release'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
