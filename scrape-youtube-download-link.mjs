@@ -1,11 +1,10 @@
 #!/usr/bin/env node
 
-import {JSDOM as jsdom} from 'jsdom'
-import jquery from 'jquery'
+import { JSDOM as jsdom } from 'jsdom'
+import jquery from 'jquery'
 
-
-const version = process.argv[2]
 const baseurl = 'https://www.apkmirror.com/apk/google-inc/youtube/';
+const version = process.argv[2]
 
 let $;
 
@@ -16,7 +15,7 @@ const downloadpageDom = await jsdom.fromURL(downloadpageUrl);
 // redirect page
 $ = jquery(downloadpageDom.window);
 const redirectpageUrl = $('.accent_bg.btn.btn-flat.downloadButton')
-	.prop('href');
+  .prop('href');
 const redirectpageDom = await jsdom.fromURL(redirectpageUrl);
 
 // download url
