@@ -90,7 +90,7 @@ jobs:
               --rip-lib x86_64 \
               --rip-lib x86 \
               --rip-lib arm64-v8a \
-              --out ".tmp/artifacts/YouTube ${{ inputs.youtube_fit_version }}.apk" \
+              --out ".tmp/artifacts/YouTube-${{ inputs.youtube_fit_version }}.apk" \
               --clean
 
       - name: Patch latest youtube
@@ -116,7 +116,7 @@ jobs:
               --rip-lib x86_64 \
               --rip-lib x86 \
               --rip-lib arm64-v8a \
-              --out ".tmp/artifacts/Youtube ${{ inputs.youtube_latest_version }}.apk" \
+              --out ".tmp/artifacts/Youtube-${{ inputs.youtube_latest_version }}.apk" \
               --clean
     
       - name: Patch beta youtube version
@@ -142,15 +142,15 @@ jobs:
               --rip-lib x86_64 \
               --rip-lib x86 \
               --rip-lib arm64-v8a \
-              --out ".tmp/artifacts/Youtube ${{ inputs.youtube_beta_version }}.apk" \
+              --out ".tmp/artifacts/Youtube-${{ inputs.youtube_beta_version }}.apk" \
               --clean
 
       - name: Generate release notes
         run: |
           env \
-            revanced_cli_version=${{ inputs.cli_version }} \
-            recanced_patches_version=${{ inputs.patches_version }} \
-            revanced_integrations_version=${{ inputs.integrations_version }} \
+            cli_version=${{ inputs.cli_version }} \
+            patches_version=${{ inputs.patches_version }} \
+            integrations_version=${{ inputs.integrations_version }} \
             youtube_beta_version=${{ inputs.youtube_beta_version }} \
             youtube_latest_version=${{ inputs.youtube_latest_version }} \
             youtube_fit_version=${{ inputs.youtube_fit_version }} \

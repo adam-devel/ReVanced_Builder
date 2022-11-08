@@ -1,9 +1,9 @@
 ## Release notes
 
 build tools:
-* ReVanced CLI $revanced_cli_version
-* ReVanced Patches $revanced_patches_version
-* ReVanced Integrations $revanced_integrations_version
+* ReVanced CLI $cli_version
+* ReVanced Patches $patches_version
+* ReVanced Integrations $integrations_version
 
 youtube:
 * :white_check_mark: recommended $youtube_fit_version
