@@ -160,7 +160,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           bodyFile: .tmp/ReleaseNotes.md
-          artifacts: .tmp/artifacts/*
+          artifacts: .tmp/artifacts/*.apk
           tag: ${{ steps.make-tag.outputs.tag-name }}
           token: ${{ github.token }}
           allowUpdates: true
