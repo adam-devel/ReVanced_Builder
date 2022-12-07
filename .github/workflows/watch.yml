@@ -2,6 +2,12 @@ name: Update
 
 on:
   workflow_dispatch:
+    inputs:
+      rebuild:
+        description: Force rebuild
+        type: boolean
+        required: false
+        default: false
   schedule:
     - cron: '0 0/2 * * *'
 jobs:
@@ -94,7 +100,7 @@ jobs:
           push: true
   build:
     needs: query
-    if: needs.query.outputs.should_update == 'yes'
+    if: ${{needs.query.outputs.should_update == 'yes' || inputs.rebuild}}
     uses: ./.github/workflows/build.yml
     with: 
       youtube_beta_url:        "${{ needs.query.outputs.youtube_beta_url }}"
