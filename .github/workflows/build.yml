@@ -77,37 +77,40 @@ jobs:
 
       - name: Patch youtube fit version
         run: |
-          java                                                                        \
-            -jar .tmp/tools/cli.jar                                                   \
-              --apk     .tmp/youtube/fit.apk                                          \
-              --bundles .tmp/tools/patches.jar                                        \
-              --merge   .tmp/tools/integrations.apk                                   \
-              --exclusive                                                             \
-              ${{ steps.patches.outputs.list }}                                       \
+          java                                                    \
+            -jar .tmp/tools/cli.jar                               \
+              --apk     .tmp/youtube/fit.apk                      \
+              --bundles .tmp/tools/patches.jar                    \
+              --merge   .tmp/tools/integrations.apk               \
+              --exclusive                                         \
+              ${{ steps.patches.outputs.list }}                   \
+              --rip-lib x86_64 --rip-lib x86 --rip-lib arm64-v8a  \
               --out ".tmp/artifacts/YouTube-${{ inputs.youtube_fit_version }}.apk"
 
       - name: Patch latest youtube
         run: |
-          java                                                                        \
-            -jar .tmp/tools/cli.jar                                                   \
-              --apk     .tmp/youtube/latest.apk                                       \
-              --bundles .tmp/tools/patches.jar                                        \
-              --merge   .tmp/tools/integrations.apk                                   \
-              --experimental                                                          \
-              --exclusive                                                             \
-              ${{ steps.patches.outputs.list }}                                       \
+          java                                                    \
+            -jar .tmp/tools/cli.jar                               \
+              --apk     .tmp/youtube/latest.apk                   \
+              --bundles .tmp/tools/patches.jar                    \
+              --merge   .tmp/tools/integrations.apk               \
+              --experimental                                      \
+              --exclusive                                         \
+              ${{ steps.patches.outputs.list }}                   \
+              --rip-lib x86_64 --rip-lib x86 --rip-lib arm64-v8a  \
               --out ".tmp/artifacts/YouTube-${{ inputs.youtube_latest_version }}.apk"
 
       - name: Patch beta youtube version
         run: |
-          java                                                                        \
-            -jar .tmp/tools/cli.jar                                                   \
-              --apk     .tmp/youtube/beta.apk                                         \
-              --bundles .tmp/tools/patches.jar                                        \
-              --merge   .tmp/tools/integrations.apk                                   \
-              --experimental                                                          \
-              --exclusive                                                             \
-              ${{ steps.patches.outputs.list }}                                       \
+          java                                                    \
+            -jar .tmp/tools/cli.jar                               \
+              --apk     .tmp/youtube/beta.apk                     \
+              --bundles .tmp/tools/patches.jar                    \
+              --merge   .tmp/tools/integrations.apk               \
+              --experimental                                      \
+              --exclusive                                         \
+              ${{ steps.patches.outputs.list }}                   \
+              --rip-lib x86_64 --rip-lib x86 --rip-lib arm64-v8a  \
               --out ".tmp/artifacts/YouTube-${{ inputs.youtube_beta_version }}.apk"
 
       - name: Generate release notes
