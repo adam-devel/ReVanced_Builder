@@ -63,9 +63,9 @@ jobs:
                         )
 
           # Output download Urls
-          echo   youtube_beta_url=$(node scrape-youtube-download-link.mjs $yt_beta_version)   >> $GITHUB_OUTPUT
-          echo youtube_latest_url=$(node scrape-youtube-download-link.mjs $yt_latest_version) >> $GITHUB_OUTPUT
-          echo    youtube_fit_url=$(node scrape-youtube-download-link.mjs $yt_fit_version)    >> $GITHUB_OUTPUT
+          echo   youtube_beta_url=$(node ./scraper/ $yt_beta_version)   >> $GITHUB_OUTPUT
+          echo youtube_latest_url=$(node ./scraper/ $yt_latest_version) >> $GITHUB_OUTPUT
+          echo    youtube_fit_url=$(node ./scraper/ $yt_fit_version)    >> $GITHUB_OUTPUT
           echo        patches_url=$(jq -r <<< $revanced_patches '.browser_download_url')      >> $GITHUB_OUTPUT
           echo   integrations_url=$(jq -r <<< $revanced_integrations '.browser_download_url') >> $GITHUB_OUTPUT
           #echo            cli_url=$(jq -r <<< $jhc_cli '.assets[0].browser_download_url')     >> $GITHUB_OUTPUT
