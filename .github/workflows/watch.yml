@@ -15,9 +15,9 @@ jobs:
     name: Check for updates
     runs-on: ubuntu-latest
     env:
-      yt_beta_version:   17.44.34
-      yt_latest_version: 17.43.37 
-      yt_fit_version:    17.43.36
+      yt_beta_version:   17.49.32
+      yt_latest_version: 17.48.43 
+      yt_fit_version:    17.45.36
     outputs:
       # Download urls
       youtube_beta_url:       "${{ steps.scrape.outputs.youtube_beta_url }}"
