@@ -43,7 +43,9 @@ jobs:
         with: 
           node-version: '16'
       - name: Install NPM Dependencies
-        run: npm --prefix ./scraper ci ./scraper
+        run: |
+          cd ./scraper
+          npm ci
       - name: Scrape
         id: scrape
         run: |
