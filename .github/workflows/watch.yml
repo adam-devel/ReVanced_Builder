@@ -82,10 +82,10 @@ jobs:
 
           # Update versions
           mkdir -p versions
-          jq > versions/revanced-cli.json          -r '.version' <<< $revanced_cli         
-          jq > versions/revanced-patches.json      -r '.version' <<< $revanced_patches     
-          jq > versions/revanced-integrations.json -r '.version' <<< $revanced_integrations
-          jq > versions/jhc-cli.json               -r '.name'    <<< $jhc_cli              
+          jq > versions/revanced-cli          -r '.version' <<< $revanced_cli         
+          jq > versions/revanced-patches      -r '.version' <<< $revanced_patches     
+          jq > versions/revanced-integrations -r '.version' <<< $revanced_integrations
+          jq > versions/jhc-cli               -r '.name'    <<< $jhc_cli              
 
       - name: Compare
         id: compare
