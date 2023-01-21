@@ -80,7 +80,7 @@ jobs:
           java                                                    \
             -jar .tmp/tools/cli.jar                               \
               --apk     .tmp/youtube/fit.apk                      \
-              --bundles .tmp/tools/patches.jar                    \
+              --bundle .tmp/tools/patches.jar                    \
               --merge   .tmp/tools/integrations.apk               \
               --exclusive                                         \
               ${{ steps.patches.outputs.list }}                   \
@@ -92,7 +92,7 @@ jobs:
           java                                                    \
             -jar .tmp/tools/cli.jar                               \
               --apk     .tmp/youtube/latest.apk                   \
-              --bundles .tmp/tools/patches.jar                    \
+              --bundle .tmp/tools/patches.jar                    \
               --merge   .tmp/tools/integrations.apk               \
               --experimental                                      \
               --exclusive                                         \
@@ -105,7 +105,7 @@ jobs:
           java                                                    \
             -jar .tmp/tools/cli.jar                               \
               --apk     .tmp/youtube/beta.apk                     \
-              --bundles .tmp/tools/patches.jar                    \
+              --bundle .tmp/tools/patches.jar                    \
               --merge   .tmp/tools/integrations.apk               \
               --experimental                                      \
               --exclusive                                         \
