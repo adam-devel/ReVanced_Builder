@@ -124,6 +124,13 @@ jobs:
             youtube_fit_version=${{ inputs.youtube_fit_version }} \
             envsubst < ReleaseNotesTemplate.md > .tmp/ReleaseNotes.md
 
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist-without-markdown
+          path: |
+            .tmp/artifacts
+
       - name: Make tag
         id: make-tag
         run: |
