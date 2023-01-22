@@ -84,7 +84,6 @@ jobs:
               --merge   .tmp/tools/integrations.apk               \
               --exclusive                                         \
               ${{ steps.patches.outputs.list }}                   \
-              --rip-lib x86_64 --rip-lib x86 --rip-lib arm64-v8a  \
               --out ".tmp/artifacts/YouTube-${{ inputs.youtube_fit_version }}.apk"
 
       - name: Patch latest youtube
@@ -97,7 +96,6 @@ jobs:
               --experimental                                      \
               --exclusive                                         \
               ${{ steps.patches.outputs.list }}                   \
-              --rip-lib x86_64 --rip-lib x86 --rip-lib arm64-v8a  \
               --out ".tmp/artifacts/YouTube-${{ inputs.youtube_latest_version }}.apk"
 
       - name: Patch beta youtube version
@@ -110,7 +108,6 @@ jobs:
               --experimental                                      \
               --exclusive                                         \
               ${{ steps.patches.outputs.list }}                   \
-              --rip-lib x86_64 --rip-lib x86 --rip-lib arm64-v8a  \
               --out ".tmp/artifacts/YouTube-${{ inputs.youtube_beta_version }}.apk"
 
       - name: Generate release notes
@@ -123,9 +120,6 @@ jobs:
             youtube_latest_version=${{ inputs.youtube_latest_version }} \
             youtube_fit_version=${{ inputs.youtube_fit_version }} \
             envsubst < ReleaseNotesTemplate.md > .tmp/ReleaseNotes.md
-
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
 
       - name: Make tag
         id: make-tag
