@@ -53,9 +53,9 @@ jobs:
 
           # Gather metadata
              revanced_json_data=$(jq -r .tools <<< "$(curl -sL $revanced_endpoint)")
-                   revanced_cli=$(jq -r <<< $revanced_json_data '.[1]')
-               revanced_patches=$(jq -r <<< $revanced_json_data '.[4]')
-          revanced_integrations=$(jq -r <<< $revanced_json_data '.[5]')
+                   revanced_cli=$(jq -r <<< $revanced_json_data '.[6]')
+               revanced_patches=$(jq -r <<< $revanced_json_data '.[3]')
+          revanced_integrations=$(jq -r <<< $revanced_json_data '.[4]')
                         jhc_cli=$(curl -sL \
                           -H "Accept: application/vnd.github+json" \
                           -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
