@@ -1,0 +1,120 @@
+name: Update
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Youtube version
+        type: string
+        required: true
+      rebuild:
+        description: Force rebuild
+        type: boolean
+        required: false
+        default: false
+jobs:
+  scrape:
+    name: Scrape
+    runs-on: ubuntu-latest
+    steps:
+      - 
+        name: Checkout
+        uses: actions/checkout@v3
+      - 
+        name: Setup node
+        uses: actions/setup-node@v3
+        with: { node-version: '16' }
+      - 
+        name: Install dependencies
+        run: npm --prefix ./scraper ci ./scraper
+      - 
+        name: Fetch
+        id: fetch
+        env: 
+          revanced_endpoint: https://https://releases.revanced.app/tools
+          github_endpoint: https://api.github.coms
+        run: |
+          revanced=$(curl -X 'GET' -sL $revanced_endpoint)
+          jhc_cli=$(curl -X 'GET' -sL \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            "${github_endpoint}/repos/j-hc/revanced-cli/releases/latest")
+          printf "%s=%s" >> $GITHUB_OUTPUT revanced "$revanced"
+          printf "%s=%s" >> $GITHUB_OUTPUT jhc_cli "$jhc_cli"
+      -
+        name: Gather data
+        id: data
+        run: |
+          # versions
+          printf "%s=%s" >> $GITHUB_OUTPUT          cli_version ${{fromJson(steps.fetch.outputs.revanced).tools[5].version}}
+          printf "%s=%s" >> $GITHUB_OUTPUT      patches_version ${{fromJson(steps.fetch.outputs.revanced).tools[2].version}}
+          printf "%s=%s" >> $GITHUB_OUTPUT integrations_version ${{fromJson(steps.fetch.outputs.revanced).tools[3].version}}
+          printf "%s=%s" >> $GITHUB_OUTPUT          cli_version ${{fromJson(steps.fetch.outputs.jhc_cli).name}}
+
+          # download urls
+          printf "%s=%s" >> $GITHUB_OUTPUT          cli_dl ${{fromJson(steps.fetch.outputs.revanced).tools[5].browser_download_url}}
+          printf "%s=%s" >> $GITHUB_OUTPUT      patches_dl ${{fromJson(steps.fetch.outputs.revanced).tools[2].browser_download_url}}
+          printf "%s=%s" >> $GITHUB_OUTPUT integrations_dl ${{fromJson(steps.fetch.outputs.revanced).tools[3].browser_download_url}}
+          printf "%s=%s" >> $GITHUB_OUTPUT          cli_dl ${{fromJson(steps.fetch.outputs.jhc_cli).assets[0].browser_download_url}}
+          printf "%s=%s" >> $GITHUB_OUTPUT      youtube_dl $(node ./scraper/ ${{inputs.version}})
+      #-
+      #  name: Gather data
+      #  id: data
+      #  run: |
+      #   # json processing
+      #   revanced_response=$(curl -X 'GET' -sL $revanced_endpoint)
+      #   revanced_tools=$(jq -r .tools <<<)
+      #   revanced_integrations=$(jq -r <<< $revanced_tools '.[3]')
+      #        revanced_patches=$(jq -r <<< $revanced_tools '.[2]')
+      #            revanced_cli=$(jq -r <<< $revanced_tools '.[5]')
+      #                 jhc_cli=$(curl -X 'GET' -sL \
+      #                   -H "Accept: application/vnd.github+json" \
+      #                   -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+      #                   "${github_endpoint}/repos/j-hc/revanced-cli/releases/latest")
+      #    # versions
+      #    printf "%s=%s" >> $GITHUB_OUTPUT          cli_version $(jq -r '.version' <<< $revanced_cli         )
+      #    printf "%s=%s" >> $GITHUB_OUTPUT      patches_version $(jq -r '.version' <<< $revanced_patches     )
+      #    printf "%s=%s" >> $GITHUB_OUTPUT integrations_version $(jq -r '.version' <<< $revanced_integrations)
+      #    printf "%s=%s" >> $GITHUB_OUTPUT          cli_version $(jq -r '.name'    <<< $jhc_cli              )
+      #    # download urls
+      #    printf "%s=%s" >> $GITHUB_OUTPUT          cli_dl $(jq -r '.browser_download_url'           <<< $revanced_cli         )
+      #    printf "%s=%s" >> $GITHUB_OUTPUT      patches_dl $(jq -r '.browser_download_url'           <<< $revanced_patches     )
+      #    printf "%s=%s" >> $GITHUB_OUTPUT integrations_dl $(jq -r '.browser_download_url'           <<< $revanced_integrations)
+      #    printf "%s=%s" >> $GITHUB_OUTPUT          cli_dl $(jq -r '.assets[0].browser_download_url' <<< $jhc_cli              )
+      #    printf "%s=%s" >> $GITHUB_OUTPUT      youtube_dl $(node ./scraper/ ${{inputs.version}})
+
+      - name: Compare versions
+        id: compare
+        run: |
+          mkdir -p version_tracking
+          printf "%s" ${{steps.data.outputs.cli_version         }} > version_tracking/revanced_cli
+          printf "%s" ${{steps.data.outputs.patches_version     }} > version_tracking/revanced_patches
+          printf "%s" ${{steps.data.outputs.integrations_version}} > version_tracking/revanced_integrations 
+          printf "%s=%s" is_changed $([ -z "`git status --porcelain`" ] && echo "no" || echo "yes") >> $GITHUB_OUTPUT
+
+      - name: Update to the new version
+        if: steps.compare.outputs.is_changed == 'yes'
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: 'versions'
+          message: 'version tracker: bump'
+          push: true
+  build:
+    name: Build
+    if: ${{steps.compare.outputs.is_modified == 'yes' || inputs.rebuild}}
+    runs-on: ubuntu-latest
+    env: 
+      youtube_dl:     "${{ steps.scrape.outputs.youtube_url }}"
+      cli_dl:                "${{ steps.scrape.outputs.cli_url }}"
+      patches_dl:            "${{ steps.scrape.outputs.patches_url }}"
+      integrations_dl:       "${{ steps.scrape.outputs.integrations_url }}"
+      youtube_version:     "${{ needs.query.outputs.youtube_fit_version }}"
+      cli_version:          "${{ steps.scrape.outputs.cli_version }}"
+      patches_version:      "${{ steps.scrape.outputs.patches_version }}"
+      integrations_version: "${{ steps.scrape.outputs.integrations_version }}"
+    steps:
+      - 
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: 
