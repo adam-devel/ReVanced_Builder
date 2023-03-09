@@ -12,37 +12,59 @@ on:
         type: boolean
         required: false
         default: false
+
 jobs:
-  scrape:
-    name: Scrape
+  youtube-data:
+    name: Gather youtube data
     runs-on: ubuntu-latest
+    outputs:
+      dl_link: ${{steps.data.dl_link}}
     steps:
-      - 
-        name: Checkout
-        uses: actions/checkout@v3
       - 
         name: Setup node
         uses: actions/setup-node@v3
         with: { node-version: '16' }
       - 
-        name: Install dependencies
+        name: Checkout
+        uses: actions/checkout@v3
+      - 
+        name: Npm CI
         run: npm --prefix ./scraper ci ./scraper
       - 
-        name: Fetch
+        name: Scrape data
+        id: data
+        env: 
+          revanced_endpoint: https://https://releases.revanced.app/tools
+          github_endpoint: https://api.github.com/repos
+        run: printf "%s=%s" >> $GITHUB_OUTPUT dl_link $(node ./scraper/ ${{inputs.version}})
+ 
+  revanced-data:
+    name: Gather revanced data
+    runs-on: ubuntu-latest
+    outputs:
+      cli_dl:               ${{ steps.data.outputs.cli_dl }}
+      cli_version:          ${{ steps.data.outputs.cli_version }}
+      patches_dl:           ${{ steps.data.outputs.patches_dl }}
+      patches_version:      ${{ steps.data.outputs.patches_version }}
+      integrations_dl:      ${{ steps.data.outputs.integrations_dl }}
+      integrations_version: ${{ steps.data.outputs.integrations_version }}
+    steps:
+      - 
+        name: Fetch data
         id: fetch
         env: 
           revanced_endpoint: https://https://releases.revanced.app/tools
-          github_endpoint: https://api.github.coms
+          github_endpoint: https://api.github.com/repos
         run: |
-          revanced=$(curl -X 'GET' -sL $revanced_endpoint)
-          jhc_cli=$(curl -X 'GET' -sL \
+          revanced=$(curl $revanced_endpoint -X 'GET' -sL)
+          jhc_cli=$(curl $github_endpoint/j-hc/revanced-cli/releases/latest \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            "${github_endpoint}/repos/j-hc/revanced-cli/releases/latest")
+            -X 'GET' -sL )
           printf "%s=%s" >> $GITHUB_OUTPUT revanced "$revanced"
           printf "%s=%s" >> $GITHUB_OUTPUT jhc_cli "$jhc_cli"
       -
-        name: Gather data
+        name: Parse data
         id: data
         run: |
           # versions
@@ -56,65 +78,115 @@ jobs:
           printf "%s=%s" >> $GITHUB_OUTPUT      patches_dl ${{fromJson(steps.fetch.outputs.revanced).tools[2].browser_download_url}}
           printf "%s=%s" >> $GITHUB_OUTPUT integrations_dl ${{fromJson(steps.fetch.outputs.revanced).tools[3].browser_download_url}}
           printf "%s=%s" >> $GITHUB_OUTPUT          cli_dl ${{fromJson(steps.fetch.outputs.jhc_cli).assets[0].browser_download_url}}
-          printf "%s=%s" >> $GITHUB_OUTPUT      youtube_dl $(node ./scraper/ ${{inputs.version}})
-      #-
-      #  name: Gather data
-      #  id: data
-      #  run: |
-      #   # json processing
-      #   revanced_response=$(curl -X 'GET' -sL $revanced_endpoint)
-      #   revanced_tools=$(jq -r .tools <<<)
-      #   revanced_integrations=$(jq -r <<< $revanced_tools '.[3]')
-      #        revanced_patches=$(jq -r <<< $revanced_tools '.[2]')
-      #            revanced_cli=$(jq -r <<< $revanced_tools '.[5]')
-      #                 jhc_cli=$(curl -X 'GET' -sL \
-      #                   -H "Accept: application/vnd.github+json" \
-      #                   -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-      #                   "${github_endpoint}/repos/j-hc/revanced-cli/releases/latest")
-      #    # versions
-      #    printf "%s=%s" >> $GITHUB_OUTPUT          cli_version $(jq -r '.version' <<< $revanced_cli         )
-      #    printf "%s=%s" >> $GITHUB_OUTPUT      patches_version $(jq -r '.version' <<< $revanced_patches     )
-      #    printf "%s=%s" >> $GITHUB_OUTPUT integrations_version $(jq -r '.version' <<< $revanced_integrations)
-      #    printf "%s=%s" >> $GITHUB_OUTPUT          cli_version $(jq -r '.name'    <<< $jhc_cli              )
-      #    # download urls
-      #    printf "%s=%s" >> $GITHUB_OUTPUT          cli_dl $(jq -r '.browser_download_url'           <<< $revanced_cli         )
-      #    printf "%s=%s" >> $GITHUB_OUTPUT      patches_dl $(jq -r '.browser_download_url'           <<< $revanced_patches     )
-      #    printf "%s=%s" >> $GITHUB_OUTPUT integrations_dl $(jq -r '.browser_download_url'           <<< $revanced_integrations)
-      #    printf "%s=%s" >> $GITHUB_OUTPUT          cli_dl $(jq -r '.assets[0].browser_download_url' <<< $jhc_cli              )
-      #    printf "%s=%s" >> $GITHUB_OUTPUT      youtube_dl $(node ./scraper/ ${{inputs.version}})
 
-      - name: Compare versions
+  compare:
+    name: Compare versions
+    needs: [ youtube-data, revanced-data ]
+    runs-on: ubuntu-latest
+    outputs:
+      has_changed: ${{ steps.compare.outputs.has_changed }}
+    steps:
+      - 
         id: compare
         run: |
           mkdir -p version_tracking
-          printf "%s" ${{steps.data.outputs.cli_version         }} > version_tracking/revanced_cli
-          printf "%s" ${{steps.data.outputs.patches_version     }} > version_tracking/revanced_patches
-          printf "%s" ${{steps.data.outputs.integrations_version}} > version_tracking/revanced_integrations 
-          printf "%s=%s" is_changed $([ -z "`git status --porcelain`" ] && echo "no" || echo "yes") >> $GITHUB_OUTPUT
-
-      - name: Update to the new version
-        if: steps.compare.outputs.is_changed == 'yes'
+          printf "%s" ${{jobs.revanced-data.outputs.cli_version         }} > version_tracking/revanced_cli
+          printf "%s" ${{jobs.revanced-data.outputs.patches_version     }} > version_tracking/revanced_patches
+          printf "%s" ${{jobs.revanced-data.outputs.integrations_version}} > version_tracking/revanced_integrations 
+          printf "%s=%s" has_changed $([ -z "`git status --porcelain`" ] && echo "no" || echo "yes") >> $GITHUB_OUTPUT
+      - 
+        if: steps.compare.outputs.has_changed == 'yes'
         uses: EndBug/add-and-commit@v9
         with:
           add: 'versions'
           message: 'version tracker: bump'
           push: true
-  build:
-    name: Build
-    if: ${{steps.compare.outputs.is_modified == 'yes' || inputs.rebuild}}
+
+  download:
+    name: Download Youtube and ReVanced 
+    if: ${{ jobs.comapare.outputs.has_changed == 'yes' || inputs.rebuild }}
     runs-on: ubuntu-latest
-    env: 
-      youtube_dl:     "${{ steps.scrape.outputs.youtube_url }}"
-      cli_dl:                "${{ steps.scrape.outputs.cli_url }}"
-      patches_dl:            "${{ steps.scrape.outputs.patches_url }}"
-      integrations_dl:       "${{ steps.scrape.outputs.integrations_url }}"
-      youtube_version:     "${{ needs.query.outputs.youtube_fit_version }}"
-      cli_version:          "${{ steps.scrape.outputs.cli_version }}"
-      patches_version:      "${{ steps.scrape.outputs.patches_version }}"
-      integrations_version: "${{ steps.scrape.outputs.integrations_version }}"
+    env:
+      useragent: 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)'
+      youtube: ${{ jobs.youtube-data.outputs.dl_link }}
+      integrations: ${{ jobs.revanced-data.integrations_dl }}
+      patches: ${{ jobs.revanced-data.patches_dl }}
+      cli: ${{ jobs.revanced-data.cli_dl }}
     steps:
-      - 
+      -
+        run: |
+          mkdir .tmp
+          curl -sL -A "$useragent" -o .tmp/youtube.apk      "$youtube"      &
+          curl -sL -A "$useragent" -o .tmp/integrations.apk "$integrations" &
+          curl -sL -A "$useragent" -o .tmp/patches.jar      "$patches"      &
+          curl -sL -A "$useragent" -o .tmp/cli.jar          "$cli"          &
+          wait
+      -
+        name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: data
+          path: .tmp
+  build:
+    name: Build youtube
+    if: ${{ jobs.comapare.outputs.has_changed == 'yes' || inputs.rebuild }}
+    env: 
+      cli_version:          "${{ jobs.revanced-data.outputs.cli_version }}"
+      patches_version:      "${{ jobs.revanced-data.outputs.patches_version }}"
+      integrations_version: "${{ jobs.revanced-data.outputs.integrations_version }}"
+      youtube_version:      "${{ inputs.version }}"
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      -
         name: Checkout
         uses: actions/checkout@v3
       -
-        name: 
+        name: Specify patches
+        id: patches
+        run: |
+          printf '%s="%s"' includes $(while read -r line; do [ "${line:0:1}" = "#" ] && continue; echo "-i"; echo "$line"; done < ./patches) >> $GITHUB_OUTPUT
+      - uses: actions/download-artifact@master
+        with:
+          name: data
+          path: .tmp
+      -
+        name: Patch youtube
+        run: |
+          java                                      \
+            -jar .tmp/cli.jar                       \
+              --apk       .tmp/youtube.apk          \
+              --bundle    .tmp/patches.jar          \
+              --merge     .tmp/integrations.apk     \
+              --exclusive                           \
+              --rip-lib arm64-v8a                   \
+              --rip-lib x86                         \
+              --rip-lib arm64-v8a                   \
+              ${{ steps.patches.outputs.includes }} \
+              --out ".tmp/out/YouTube-${{ inputs.version }}.apk"
+      -
+        name: Make tag
+        id: make-tag
+        run: |
+          tag="$(date +%F)-$(git rev-parse --short HEAD)"
+          git tag "$tag"
+          echo tag-name=$tag >> $GITHUB_OUTPUT
+      -
+        name: Generate release notes
+        run: |
+          env \
+            envsubst < ReleaseNotesTemplate.md > .tmp/ReleaseNotes.md
+      -
+        name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          bodyFile: .tmp/ReleaseNotes.md
+          artifacts: .tmp/out/*.apk
+          tag: ${{ steps.make-tag.outputs.tag-name }}
+          token: ${{ github.token }}
+          allowUpdates: true
