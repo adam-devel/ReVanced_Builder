@@ -7,6 +7,7 @@ on:
         description: Youtube version
         type: string
         required: true
+  pull_request:
 
 jobs:
   youtube-data:
