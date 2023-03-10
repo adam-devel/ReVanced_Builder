@@ -103,7 +103,7 @@ jobs:
           path: .tmp
   build:
     name: Build
-    needs: revanced-data
+    needs: download
     runs-on: ubuntu-latest
     steps:
       -
