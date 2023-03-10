@@ -28,9 +28,6 @@ jobs:
       - 
         name: Scrape data
         id: data
-        env: 
-          revanced_endpoint: https://releases.revanced.app/tools
-          github_endpoint: https://api.github.com/repos
         run: printf "%s=%s" >> $GITHUB_OUTPUT dl_link $(node ./scraper/ ${{ inputs.version }})
  
   revanced-data:
