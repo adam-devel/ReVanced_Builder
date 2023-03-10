@@ -29,7 +29,7 @@ jobs:
       - 
         name: Scrape data
         id: data
-        run: printf "%s=%s" >> $GITHUB_OUTPUT dl_link $(node ./scraper/ ${{ inputs.version }})
+        run: printf "%s=%s\n" >> $GITHUB_OUTPUT dl_link $(node ./scraper/ ${{ inputs.version }})
  
   revanced-data:
     name: Gather revanced data
@@ -54,23 +54,23 @@ jobs:
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -X 'GET' -sL | jq -rc)
-          printf "%s=%s" >> $GITHUB_OUTPUT revanced "$revanced"
-          printf "%s=%s" >> $GITHUB_OUTPUT jhc_cli "$jhc_cli"
+          printf "%s=%s\n" >> $GITHUB_OUTPUT revanced "$revanced"
+          printf "%s=%s\n" >> $GITHUB_OUTPUT jhc_cli "$jhc_cli"
       -
         name: Parse data
         id: data
         run: |
           # versions
-          #printf "%s=%s" >> $GITHUB_OUTPUT          cli_version ${{fromJson(steps.fetch.outputs.revanced).tools[5].version}}
-          printf "%s=%s" >> $GITHUB_OUTPUT      patches_version ${{fromJson(steps.fetch.outputs.revanced).tools[2].version}}
-          printf "%s=%s" >> $GITHUB_OUTPUT integrations_version ${{fromJson(steps.fetch.outputs.revanced).tools[3].version}}
-          printf "%s=%s" >> $GITHUB_OUTPUT          cli_version ${{fromJson(steps.fetch.outputs.jhc_cli).name}}
+          #printf "%s=%s\n" >> $GITHUB_OUTPUT          cli_version ${{fromJson(steps.fetch.outputs.revanced).tools[5].version}}
+          printf "%s=%s\n" >> $GITHUB_OUTPUT      patches_version ${{fromJson(steps.fetch.outputs.revanced).tools[2].version}}
+          printf "%s=%s\n" >> $GITHUB_OUTPUT integrations_version ${{fromJson(steps.fetch.outputs.revanced).tools[3].version}}
+          printf "%s=%s\n" >> $GITHUB_OUTPUT          cli_version ${{fromJson(steps.fetch.outputs.jhc_cli).name}}
 
           # download urls
-          #printf "%s=%s" >> $GITHUB_OUTPUT          cli_dl ${{fromJson(steps.fetch.outputs.revanced).tools[5].browser_download_url}}
-          printf "%s=%s" >> $GITHUB_OUTPUT      patches_dl ${{fromJson(steps.fetch.outputs.revanced).tools[2].browser_download_url}}
-          printf "%s=%s" >> $GITHUB_OUTPUT integrations_dl ${{fromJson(steps.fetch.outputs.revanced).tools[3].browser_download_url}}
-          printf "%s=%s" >> $GITHUB_OUTPUT          cli_dl ${{fromJson(steps.fetch.outputs.jhc_cli).assets[0].browser_download_url}}
+          #printf "%s=%s\n" >> $GITHUB_OUTPUT          cli_dl ${{fromJson(steps.fetch.outputs.revanced).tools[5].browser_download_url}}
+          printf "%s=%s\n" >> $GITHUB_OUTPUT      patches_dl ${{fromJson(steps.fetch.outputs.revanced).tools[2].browser_download_url}}
+          printf "%s=%s\n" >> $GITHUB_OUTPUT integrations_dl ${{fromJson(steps.fetch.outputs.revanced).tools[3].browser_download_url}}
+          printf "%s=%s\n" >> $GITHUB_OUTPUT          cli_dl ${{fromJson(steps.fetch.outputs.jhc_cli).assets[0].browser_download_url}}
 
   # Todo: job to compare the current version with the last tag to determine weather to update
   
