@@ -48,7 +48,7 @@ jobs:
         name: Fetch data
         id: fetch
         env: 
-          revanced_endpoint: https://https://releases.revanced.app/tools
+          revanced_endpoint: https://releases.revanced.app/tools
           github_endpoint: https://api.github.com/repos
         run: |
           revanced=$(curl $revanced_endpoint -X 'GET' -sL)
