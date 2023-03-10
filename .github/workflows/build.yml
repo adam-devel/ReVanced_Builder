@@ -30,6 +30,8 @@ jobs:
         run: printf "%s=%s\n" >> $GITHUB_OUTPUT dl_link $(node ./scraper/ ${{ inputs.version }})
       - 
         name: Download apk
+        env:
+          useragent: 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)'
         run: |
           mkdir -p .tmp
           curl -sL -A "$useragent" -o .tmp/youtube.apk  ${{ steps.data.outputs.dl_link }}
