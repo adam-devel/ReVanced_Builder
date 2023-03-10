@@ -10,11 +10,9 @@ on:
   pull_request:
 
 jobs:
-  youtube-data:
-    name: Gather youtube data
+  get-youtube:
+    name: Get youtube
     runs-on: ubuntu-latest
-    outputs:
-      dl_link: ${{steps.data.dl_link}}
     steps:
       - 
         name: Setup node
@@ -30,9 +28,20 @@ jobs:
         name: Scrape data
         id: data
         run: printf "%s=%s\n" >> $GITHUB_OUTPUT dl_link $(node ./scraper/ ${{ inputs.version }})
- 
-  revanced-data:
-    name: Gather revanced data
+      - 
+        name: Download apk
+        run: |
+          mkdir -p .tmp
+          curl -sL -A "$useragent" -o .tmp/youtube.apk  ${{ steps.data.outputs.dl_link }}
+      -
+        name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: youtube
+          path: .tmp
+
+  get-revanced:
+    name: Get revanced
     runs-on: ubuntu-latest
     outputs:
       cli_dl:               ${{ steps.data.outputs.cli_dl }}
@@ -71,24 +80,15 @@ jobs:
           printf "%s=%s\n" >> $GITHUB_OUTPUT      patches_dl ${{fromJson(steps.fetch.outputs.revanced).tools[2].browser_download_url}}
           printf "%s=%s\n" >> $GITHUB_OUTPUT integrations_dl ${{fromJson(steps.fetch.outputs.revanced).tools[3].browser_download_url}}
           printf "%s=%s\n" >> $GITHUB_OUTPUT          cli_dl ${{fromJson(steps.fetch.outputs.jhc_cli).assets[0].browser_download_url}}
-
-  # Todo: job to compare the current version with the last tag to determine weather to update
-  
-  download:
-    name: Download Youtube and ReVanced 
-    needs: [youtube-data, revanced-data]
-    runs-on: ubuntu-latest
-    env:
-      useragent: 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)'
-      youtube: ${{ needs.youtube-data.outputs.dl_link }}
-      integrations: ${{ needs.revanced-data.outputs.integrations_dl }}
-      patches: ${{ needs.revanced-data.outputs.patches_dl }}
-      cli: ${{ needs.revanced-data.outputs.cli_dl }}
-    steps:
       -
+        name: Download
+        env:
+          useragent: 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)'
+          integrations: ${{ steps.data.outputs.integrations_dl }}
+          patches: ${{ steps.data.outputs.patches_dl }}
+          cli: ${{ steps.data.outputs.cli_dl }}
         run: |
-          mkdir .tmp
-          curl -sL -A "$useragent" -o .tmp/youtube.apk      "$youtube"      &
+          mkdir -p .tmp
           curl -sL -A "$useragent" -o .tmp/integrations.apk "$integrations" &
           curl -sL -A "$useragent" -o .tmp/patches.jar      "$patches"      &
           curl -sL -A "$useragent" -o .tmp/cli.jar          "$cli"          &
@@ -97,11 +97,12 @@ jobs:
         name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: data
+          name: revanced
           path: .tmp
+
   build:
     name: Build
-    needs: download
+    needs: [get-revanced, get-youtube]
     runs-on: ubuntu-latest
     steps:
       -
@@ -118,9 +119,15 @@ jobs:
         id: patches
         run: |
           printf '%s="%s"' includes $(while read -r line; do [ "${line:0:1}" = "#" ] && continue; echo "-i"; echo "$line"; done < ./patches) >> $GITHUB_OUTPUT
-      - uses: actions/download-artifact@master
+      -
+        uses: actions/download-artifact@master
         with:
-          name: data
+          name: youtube
+          path: .tmp
+      -
+        uses: actions/download-artifact@master
+        with:
+          name: revanced
           path: .tmp
       -
         name: Patch youtube
@@ -139,7 +146,7 @@ jobs:
               
   release:
     name: Release Youtube
-    needs: [build, revanced-data]
+    needs: build
     runs-on: ubuntu-latest
     env: 
       cli_version:          "${{ needs.revanced-data.outputs.cli_version }}"
