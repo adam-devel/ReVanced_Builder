@@ -35,6 +35,7 @@ settings
 microg-support
 #custom-video-buffer
 client-spoof
+spoof-signature-verification
 always-autorepeat
 #debugging
 minimized-playback
