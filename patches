@@ -1,53 +1,54 @@
-always-autorepeat
+# always-autorepeat
 client-spoof
 # comments
 # copy-video-url
 # custom-branding
-# custom-video-speed
+# custom-video-buffer
 # disable-auto-captions
 # disable-fullscreen-panels
 # disable-player-popup-panels
 disable-shorts-on-startup
-#disable-zoom-haptics
-downloads
-#enable-debugging
-general-ads
-#hdr-auto-brightness
-#hide-album-cards
-#hide-artist-card
-#hide-autoplay-button
+# disable-zoom-haptics
+# enable-debugging
+# external-downloads
+# hdr-auto-brightness
+hide-ads
+# hide-album-cards
+# hide-autoplay-button
 hide-breaking-news-shelf
-#hide-captions-button
-#hide-cast-button
-hide-create-button
+# hide-captions-button
+# hide-cast-button
 hide-crowdfunding-box
-#hide-email-address
-#hide-endscreen-cards
-#hide-floating-microphone-button
-hide-get-premium
-#hide-info-cards
-#hide-player-buttons
-#hide-seekbar
-hide-shorts-button
-#hide-timestamp
-#hide-video-action-buttons
-#hide-watch-in-vr
+# hide-email-address
+# hide-endscreen-cards
+# hide-filter-bar
+# hide-floating-microphone-button
+# hide-info-cards
+# hide-layout-components
+# hide-load-more-button
+# hide-player-buttons
+# hide-player-overlay
+# hide-seekbar
+hide-shorts-components
+# hide-timestamp
+# hide-video-action-buttons
+hide-watch-in-vr
 hide-watermark
 minimized-playback
-#old-quality-layout
+navigation-buttons
+# old-quality-layout
 open-links-externally
-#premium-heading
-#remember-playback-speed
+# premium-heading
 remember-video-quality
-#remove-player-button-background
+# remove-player-controls-background
 return-youtube-dislike
-#seekbar-tapping
+# seekbar-tapping
 sponsorblock
-spoof-app-version
-spoof-signature-verification
+# spoof-app-version
 swipe-controls
-#tablet-mini-player
-theme
+# tablet-mini-player
+# theme
 vanced-microg-support
 video-ads
-#wide-searchbar
+# video-speed
+# wide-searchbar
