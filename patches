@@ -1,35 +1,33 @@
 ## MicroG
-vanced-microg-support
+Vanced Microg support
 ## Spoof
-# spoof-app-version
-client-spoof
+# Spoof app version
+Client spoof
 ## Ads: Hide general and video ads, and skip sponsors
-hide-ads
-video-ads
-sponsorblock
+Hide ads
+Video ads
+Sponsorblock
 ## Shorts
-disable-resuming-shorts-on-startup
-hide-shorts-components
+Disable resuming Shorts on startup
+Hide Shorts components
 ## Captions
-disable-auto-captions
+Disable auto captions
 ## Brand
-custom-branding
-theme
+Custom branding
+Theme
 ## UI
-hide-breaking-news-shelf
-hide-crowdfunding-box
-hide-floating-microphone-button
-hide-watch-in-vr
-hide-watermark
+Hide breaking news shelf
+Hide crowdfunding box
+Hide floating microphone button
 ## Dislikes
-return-youtube-dislike
+Return Youtube Dislike
 ## Behaviour
-bypass-url-redirects
-open-links-externally
-remember-video-quality
+Bypass URL redirects
+Open links externally
+Remember video quality
 ## Feautures
-minimized-playback
-swipe-controls
+Minimized playback
+Swipe controls
 #
 # always-autorepeat
 # comments
