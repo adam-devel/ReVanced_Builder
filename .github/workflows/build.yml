@@ -59,15 +59,15 @@ jobs:
           revanced_patches=$(curl $endpoint/revanced/revanced-patches/releases/latest \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -X 'GET' -sL)
+            -X 'GET' -sL | jq -c)
           revanced_integrations=$(curl $endpoint/revanced/revanced-integrations/releases/latest \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -X 'GET' -sL)
+            -X 'GET' -sL | jq -c)
           jhc_cli=$(curl $endpoint/j-hc/revanced-cli/releases/latest \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -X 'GET' -sL)
+            -X 'GET' -sL | jq -c)
           printf "%s=%s\n" >> $GITHUB_OUTPUT revanced_patches "$revanced_patches"
           printf "%s=%s\n" >> $GITHUB_OUTPUT revanced_integrations "$revanced_integrations"
           printf "%s=%s\n" >> $GITHUB_OUTPUT jhc_cli "$jhc_cli"
@@ -81,7 +81,6 @@ jobs:
           printf "%s=%s\n" >> $GITHUB_OUTPUT          cli_version ${{fromJson(steps.fetch.outputs.jhc_cli).name}}
 
           # download urls
-          
           printf "%s=%s\n" >> $GITHUB_OUTPUT      patches_version ${{fromJson(steps.fetch.outputs.revanced_patches).assets[1].browser_download_url}}
           printf "%s=%s\n" >> $GITHUB_OUTPUT integrations_version ${{fromJson(steps.fetch.outputs.revanced_integrations).assets[0].browser_download_url}}
           printf "%s=%s\n" >> $GITHUB_OUTPUT          cli_dl ${{fromJson(steps.fetch.outputs.jhc_cli).assets[0].browser_download_url}}
