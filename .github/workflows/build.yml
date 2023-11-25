@@ -51,33 +51,38 @@ jobs:
       integrations_version: ${{ steps.data.outputs.integrations_version }}
     steps:
       - 
-        name: Fetch data
+        name: Fetch API
         id: fetch
-        env: 
-          revanced_endpoint: https://releases.revanced.app/tools
-          github_endpoint: https://api.github.com/repos
+        env:
+          endpoint: https://api.github.com/repos
         run: |
-          revanced=$(curl $revanced_endpoint -X 'GET' -sL | jq -rc)
-          jhc_cli=$(curl $github_endpoint/j-hc/revanced-cli/releases/latest \
+          revanced_patches=$(curl $endpoint/revanced/revanced-patches/releases/latest \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -X 'GET' -sL | jq -rc)
-          printf "%s=%s\n" >> $GITHUB_OUTPUT revanced "$revanced"
+            -X 'GET' -sL | jq -c)
+          revanced_integrations=$(curl $endpoint/revanced/revanced-integrations/releases/latest \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -X 'GET' -sL | jq -c)
+          jhc_cli=$(curl $endpoint/j-hc/revanced-cli/releases/latest \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -X 'GET' -sL | jq -c)
+          printf "%s=%s\n" >> $GITHUB_OUTPUT revanced_patches "$revanced_patches"
+          printf "%s=%s\n" >> $GITHUB_OUTPUT revanced_integrations "$revanced_integrations"
           printf "%s=%s\n" >> $GITHUB_OUTPUT jhc_cli "$jhc_cli"
       -
         name: Parse data
         id: data
         run: |
           # versions
-          #printf "%s=%s\n" >> $GITHUB_OUTPUT          cli_version ${{fromJson(steps.fetch.outputs.revanced).tools[5].version}}
-          printf "%s=%s\n" >> $GITHUB_OUTPUT      patches_version ${{fromJson(steps.fetch.outputs.revanced).tools[2].version}}
-          printf "%s=%s\n" >> $GITHUB_OUTPUT integrations_version ${{fromJson(steps.fetch.outputs.revanced).tools[3].version}}
+          printf "%s=%s\n" >> $GITHUB_OUTPUT      patches_version ${{fromJson(steps.fetch.outputs.revanced_patches).name}}
+          printf "%s=%s\n" >> $GITHUB_OUTPUT integrations_version ${{fromJson(steps.fetch.outputs.revanced_integrations).name}}
           printf "%s=%s\n" >> $GITHUB_OUTPUT          cli_version ${{fromJson(steps.fetch.outputs.jhc_cli).name}}
 
           # download urls
-          #printf "%s=%s\n" >> $GITHUB_OUTPUT          cli_dl ${{fromJson(steps.fetch.outputs.revanced).tools[5].browser_download_url}}
-          printf "%s=%s\n" >> $GITHUB_OUTPUT      patches_dl ${{fromJson(steps.fetch.outputs.revanced).tools[2].browser_download_url}}
-          printf "%s=%s\n" >> $GITHUB_OUTPUT integrations_dl ${{fromJson(steps.fetch.outputs.revanced).tools[3].browser_download_url}}
+          printf "%s=%s\n" >> $GITHUB_OUTPUT      patches_dl ${{fromJson(steps.fetch.outputs.revanced_patches).assets[1].browser_download_url}}
+          printf "%s=%s\n" >> $GITHUB_OUTPUT integrations_dl ${{fromJson(steps.fetch.outputs.revanced_integrations).assets[0].browser_download_url}}
           printf "%s=%s\n" >> $GITHUB_OUTPUT          cli_dl ${{fromJson(steps.fetch.outputs.jhc_cli).assets[0].browser_download_url}}
       -
         name: Download
