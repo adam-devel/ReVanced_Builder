@@ -81,8 +81,8 @@ jobs:
           printf "%s=%s\n" >> $GITHUB_OUTPUT          cli_version ${{fromJson(steps.fetch.outputs.jhc_cli).name}}
 
           # download urls
-          printf "%s=%s\n" >> $GITHUB_OUTPUT      patches_version ${{fromJson(steps.fetch.outputs.revanced_patches).assets[1].browser_download_url}}
-          printf "%s=%s\n" >> $GITHUB_OUTPUT integrations_version ${{fromJson(steps.fetch.outputs.revanced_integrations).assets[0].browser_download_url}}
+          printf "%s=%s\n" >> $GITHUB_OUTPUT      patches_dl ${{fromJson(steps.fetch.outputs.revanced_patches).assets[1].browser_download_url}}
+          printf "%s=%s\n" >> $GITHUB_OUTPUT integrations_dl ${{fromJson(steps.fetch.outputs.revanced_integrations).assets[0].browser_download_url}}
           printf "%s=%s\n" >> $GITHUB_OUTPUT          cli_dl ${{fromJson(steps.fetch.outputs.jhc_cli).assets[0].browser_download_url}}
       -
         name: Download
