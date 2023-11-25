@@ -142,16 +142,15 @@ jobs:
         name: Patch youtube
         run: |
           mkdir -p .tmp/out/
-          java                                      \
-            -jar .tmp/cli.jar patch                 \
-              --apk       .tmp/youtube.apk          \
-              --bundle    .tmp/patches.jar          \
-              --merge     .tmp/integrations.apk     \
-              --exclusive                           \
-              --rip-lib arm64-v8a                   \
-              --rip-lib x86                         \
-              --rip-lib arm64-v8a                   \
-              ${{ steps.patches.outputs.includes }} \
+          java                                       \
+            -jar .tmp/cli.jar patch .tmp/youtube.apk \
+              --patch-bundle .tmp/patches.jar        \
+              --exclusive                            \
+              ${{ steps.patches.outputs.includes }}  \
+              --merge        .tmp/integrations.apk   \
+              --rip-lib arm64-v8a                    \
+              --rip-lib x86                          \
+              --rip-lib arm64-v8a                    \
               --out ".tmp/out/YouTube-${{ inputs.version }}.apk"
       -
         name: Upload artifacts
