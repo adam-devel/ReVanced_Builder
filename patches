@@ -1,54 +1,65 @@
-# always-autorepeat
+## MicroG
+vanced-microg-support
+## Spoof
+# spoof-app-version
 client-spoof
+## Ads: Hide general and video ads, and skip sponsors
+hide-ads
+video-ads
+sponsorblock
+## Shorts
+disable-resuming-shorts-on-startup
+hide-shorts-components
+## Captions
+disable-auto-captions
+## Brand
+custom-branding
+theme
+## UI
+hide-breaking-news-shelf
+hide-crowdfunding-box
+hide-floating-microphone-button
+hide-watch-in-vr
+hide-watermark
+## Dislikes
+return-youtube-dislike
+## Behaviour
+bypass-url-redirects
+open-links-externally
+remember-video-quality
+## Feautures
+minimized-playback
+swipe-controls
+#
+# always-autorepeat
 # comments
 # copy-video-url
- custom-branding
 # custom-video-buffer
-# disable-auto-captions
 # disable-fullscreen-panels
 # disable-player-popup-panels
-disable-shorts-on-startup
 # disable-zoom-haptics
 # enable-debugging
 # external-downloads
 # hdr-auto-brightness
-hide-ads
 # hide-album-cards
 # hide-autoplay-button
-hide-breaking-news-shelf
 # hide-captions-button
 # hide-cast-button
-hide-crowdfunding-box
 # hide-email-address
 # hide-endscreen-cards
 # hide-filter-bar
-# hide-floating-microphone-button
 # hide-info-cards
 # hide-layout-components
 # hide-load-more-button
 # hide-player-buttons
 # hide-player-overlay
 # hide-seekbar
-hide-shorts-components
 # hide-timestamp
 # hide-video-action-buttons
-hide-watch-in-vr
-hide-watermark
-minimized-playback
-navigation-buttons
 # old-quality-layout
-open-links-externally
 # premium-heading
-remember-video-quality
 # remove-player-controls-background
-return-youtube-dislike
 # seekbar-tapping
-sponsorblock
-# spoof-app-version
-swipe-controls
 # tablet-mini-player
-# theme
-vanced-microg-support
-video-ads
 # video-speed
 # wide-searchbar
