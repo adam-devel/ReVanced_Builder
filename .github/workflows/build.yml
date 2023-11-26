@@ -61,8 +61,8 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -X 'GET' -sL | jq -c)
           # Parse and export
-          printf "%s=%s\n" >> $GITHUB_OUTPUT version $(jq <<< "$response" .name)
-          printf "%s=%s\n" >> $GITHUB_OUTPUT dl_link $(jq <<< "$response" .assets[1].browser_download_url)
+          printf "%s=%s\n" >> $GITHUB_OUTPUT version $(jq -r <<< "$response" .name)
+          printf "%s=%s\n" >> $GITHUB_OUTPUT dl_link $(jq -r <<< "$response" .assets[1].browser_download_url)
       -
         name: Download
         env:
@@ -94,8 +94,8 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -X 'GET' -sL | jq -c)
           # Parse and export
-          printf "%s=%s\n" >> $GITHUB_OUTPUT version $(jq <<< "$response" .name)
-          printf "%s=%s\n" >> $GITHUB_OUTPUT dl_link $(jq <<< "$response" .assets[0].browser_download_url)
+          printf "%s=%s\n" >> $GITHUB_OUTPUT version $(jq -r <<< "$response" .name)
+          printf "%s=%s\n" >> $GITHUB_OUTPUT dl_link $(jq -r <<< "$response" .assets[0].browser_download_url)
       -
         name: Download
         env:
@@ -127,8 +127,8 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -X 'GET' -sL | jq -c)
           # Parse and export
-          printf "%s=%s\n" >> $GITHUB_OUTPUT version $(jq <<< "$response" .name)
-          printf "%s=%s\n" >> $GITHUB_OUTPUT dl_link $(jq <<< "$response" .assets[0].browser_download_url)
+          printf "%s=%s\n" >> $GITHUB_OUTPUT version $(jq -r <<< "$response" .name)
+          printf "%s=%s\n" >> $GITHUB_OUTPUT dl_link $(jq -r <<< "$response" .assets[0].browser_download_url)
       -
         name: Download
         env:
