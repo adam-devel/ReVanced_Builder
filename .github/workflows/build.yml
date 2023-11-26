@@ -127,7 +127,7 @@ jobs:
         name: Specify patches
         id: patches
         run: |
-          printf "%s=%s" >> $GITHUB_OUTPUT includes "$(while read -r patch; do [ ${patch:0:1} = '#' ] && continue; printf -- ' -i %s' $patch; done < ./patches)"
+          printf "%s=%s" >> $GITHUB_OUTPUT includes "$(while read -r patch; do [ ${patch:0:1} = '#' ] && continue; printf -- ' -i "%s"' "$patch"; done < ./patches)"
       -
         uses: actions/download-artifact@master
         with:
