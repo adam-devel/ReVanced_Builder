@@ -3,115 +3,155 @@ name: Build
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: Youtube version
+      youtube-version:
+        description: Youtube version to be patched
         type: string
         required: true
   pull_request:
 
 jobs:
-  get-youtube:
-    name: Get youtube
+  download-youtube:
+    name: Download youtube
     runs-on: ubuntu-latest
     steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
       -
         name: Setup node
         uses: actions/setup-node@v3
         with: { node-version: '16' }
       -
-        name: Checkout
-        uses: actions/checkout@v3
-      -
-        name: Npm CI
+        name: Install dependencies
         run: npm --prefix ./scraper ci ./scraper
       -
-        name: Scrape data
-        id: data
-        run: printf "%s=%s\n" >> $GITHUB_OUTPUT dl_link $(node ./scraper/ ${{ inputs.version }})
+        name: Scrape the download link
+        id: scrape
+        run: |
+          cd scraper
+          link=$(node . ${{ inputs.youtube-version }})
+          printf "%s=%s\n" >> $GITHUB_OUTPUT dl_link $link
       -
-        name: Download apk
+        name: Download the apk file
         env:
           useragent: 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)'
         run: |
           mkdir -p .tmp
-          curl -sL -A "$useragent" -o .tmp/youtube.apk  '${{ steps.data.outputs.dl_link }}'
+          curl -sL -A '${{ env.useragent }}' -o .tmp/youtube.apk  '${{ steps.scrape.outputs.dl_link }}'
       -
-        name: Upload artifacts
+        name: Upload the APK for Building
         uses: actions/upload-artifact@v3
         with:
-          name: youtube
-          path: .tmp
+          name: build
+          path: .tmp/youtube.apk
 
-  get-revanced:
-    name: Get revanced
+  download-patches:
+    name: Download patches
     runs-on: ubuntu-latest
     outputs:
-      cli_version:          ${{ steps.data.outputs.cli_version }}
-      patches_version:      ${{ steps.data.outputs.patches_version }}
-      integrations_version: ${{ steps.data.outputs.integrations_version }}
+      version: ${{ steps.fetch.outputs.version }}
     steps:
       -
-        name: Fetch API
+        name: Fetch version and download link
         id: fetch
-        env:
-          endpoint: https://api.github.com/repos
         run: |
-          revanced_patches=$(curl $endpoint/revanced/revanced-patches/releases/latest \
+          # Fetch
+          response=$(curl https://api.github.com/repos/revanced/revanced-patches/releases/latest \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -X 'GET' -sL | jq -c)
-          revanced_integrations=$(curl $endpoint/revanced/revanced-integrations/releases/latest \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -X 'GET' -sL | jq -c)
-          jhc_cli=$(curl $endpoint/j-hc/revanced-cli/releases/latest \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -X 'GET' -sL | jq -c)
-          printf "%s=%s\n" >> $GITHUB_OUTPUT revanced_patches "$revanced_patches"
-          printf "%s=%s\n" >> $GITHUB_OUTPUT revanced_integrations "$revanced_integrations"
-          printf "%s=%s\n" >> $GITHUB_OUTPUT jhc_cli "$jhc_cli"
-      -
-        name: Parse data
-        id: data
-        run: |
-          # versions
-          printf "%s=%s\n" >> $GITHUB_OUTPUT      patches_version ${{fromJson(steps.fetch.outputs.revanced_patches).name}}
-          printf "%s=%s\n" >> $GITHUB_OUTPUT integrations_version ${{fromJson(steps.fetch.outputs.revanced_integrations).name}}
-          printf "%s=%s\n" >> $GITHUB_OUTPUT          cli_version ${{fromJson(steps.fetch.outputs.jhc_cli).name}}
-
-          # download urls
-          printf "%s=%s\n" >> $GITHUB_OUTPUT      patches_dl ${{fromJson(steps.fetch.outputs.revanced_patches).assets[1].browser_download_url}}
-          printf "%s=%s\n" >> $GITHUB_OUTPUT integrations_dl ${{fromJson(steps.fetch.outputs.revanced_integrations).assets[0].browser_download_url}}
-          printf "%s=%s\n" >> $GITHUB_OUTPUT          cli_dl ${{fromJson(steps.fetch.outputs.jhc_cli).assets[0].browser_download_url}}
+          # Parse and export
+          printf "%s=%s\n" >> $GITHUB_OUTPUT version $(jq <<< "$response" .name)
+          printf "%s=%s\n" >> $GITHUB_OUTPUT dl_link $(jq <<< "$response" .assets[1].browser_download_url)
       -
         name: Download
         env:
           useragent: 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)'
-          integrations: ${{ steps.data.outputs.integrations_dl }}
-          patches: ${{ steps.data.outputs.patches_dl }}
-          cli: ${{ steps.data.outputs.cli_dl }}
+          dl_link: ${{ steps.fetch.outputs.dl_link }}
         run: |
           mkdir -p .tmp
-          curl -sL -A "$useragent" -o .tmp/integrations.apk "$integrations" &
-          curl -sL -A "$useragent" -o .tmp/patches.jar      "$patches"      &
-          curl -sL -A "$useragent" -o .tmp/cli.jar          "$cli"          &
-          wait
+          curl -sL -A '${{ env.useragent }}' -o .tmp/patches.jar '${{ env.dl_link }}'
       -
         name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: revanced
-          path: .tmp
+          name: build
+          path: .tmp/patches.jar
+
+  download-patcher:
+    name: Download patcher (cli)
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.fetch.outputs.version }}
+    steps:
+      -
+        name: Fetch version and download link
+        id: fetch
+        run: |
+          # Fetch
+          response=$(curl https://api.github.com/repos/j-hc/revanced-cli/releases/latest \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -X 'GET' -sL | jq -c)
+          # Parse and export
+          printf "%s=%s\n" >> $GITHUB_OUTPUT version $(jq <<< "$response" .name)
+          printf "%s=%s\n" >> $GITHUB_OUTPUT dl_link $(jq <<< "$response" .assets[0].browser_download_url)
+      -
+        name: Download
+        env:
+          useragent: 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)'
+          dl_link: ${{ steps.fetch.outputs.dl_link }}
+        run: |
+          mkdir -p .tmp
+          curl -sL -A '${{ env.useragent }}' -o .tmp/cli.jar '${{ env.dl_link }}'
+      -
+        name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: .tmp/cli.jar
+
+  download-integration:
+    name: Download integrations
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.fetch.outputs.version }}
+    steps:
+      -
+        name: Fetch version and download link
+        id: fetch
+        run: |
+          # Fetch
+          response=$(curl https://api.github.com/repos/revanced/revanced-integrations/releases/latest \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -X 'GET' -sL | jq -c)
+          # Parse and export
+          printf "%s=%s\n" >> $GITHUB_OUTPUT version $(jq <<< "$response" .name)
+          printf "%s=%s\n" >> $GITHUB_OUTPUT dl_link $(jq <<< "$response" .assets[0].browser_download_url)
+      -
+        name: Download
+        env:
+          useragent: 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)'
+          dl_link: ${{ steps.fetch.outputs.dl_link }}
+        run: |
+          mkdir -p .tmp
+          curl -sL -A '${{ env.useragent }}' -o .tmp/integrations.apk '${{ env.dl_link }}'
+      -
+        name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: .tmp/integrations.apk
 
   build:
     name: Build
-    needs: [get-revanced, get-youtube]
+    needs: [download-youtube, download-patches, download-integrations, download-patcher]
     runs-on: ubuntu-latest
     env:
-      cli_version:          "${{ needs.get-revanced.outputs.cli_version }}"
-      patches_version:      "${{ needs.get-revanced.outputs.patches_version }}"
-      integrations_version: "${{ needs.get-revanced.outputs.integrations_version }}"
+      cli_version:          "${{ needs.download-patcher.outputs.version }}"
+      patches_version:      "${{ needs.download-patches.outputs.version }}"
+      integrations_version: "${{ needs.download-integrations.outputs.version }}"
       youtube_version:      "${{ inputs.version }}"
     steps:
       -
@@ -124,41 +164,29 @@ jobs:
         name: Checkout
         uses: actions/checkout@v3
       -
-        name: Specify patches
+        name: Parse patches
         id: patches
         run: |
-          printf "%s=%s" >> $GITHUB_OUTPUT includes "$(while read -r patch; do [[ -z $patch || ${patch:0:1} = '#' ]] && continue; printf -- ' -i "%s"' "$patch"; done < ./patches)"
+          patches="$(while read -r patch; do [[ -z $patch || ${patch:0:1} = '#' ]] && continue; printf -- ' -i "%s"' "$patch"; done < patches)"
+          printf "%s=%s" >> $GITHUB_OUTPUT patches $patches
       -
         uses: actions/download-artifact@master
         with:
-          name: youtube
-          path: .tmp
-      -
-        uses: actions/download-artifact@master
-        with:
-          name: revanced
+          name: build
           path: .tmp
       -
         name: Patch youtube
         run: |
           mkdir -p .tmp/out/
-          java                                       \
-            -jar .tmp/cli.jar patch .tmp/youtube.apk \
-              --patch-bundle .tmp/patches.jar        \
-              --exclusive                            \
-              ${{ steps.patches.outputs.includes }}  \
-              --merge        .tmp/integrations.apk   \
-              --rip-lib arm64-v8a                    \
-              --rip-lib x86                          \
-              --rip-lib arm64-v8a                    \
-              --out ".tmp/out/YouTube-${{ inputs.version }}.apk"
-      -
-        name: Upload artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: out
-          path: .tmp/out
-
+          java -jar .tmp/cli.jar \
+            patch .tmp/youtube.apk \
+            --patch-bundle .tmp/patches.jar \
+            --exclusive ${{ steps.patches.outputs.patches }} \
+            --merge .tmp/integrations.apk   \
+            --rip-lib arm64-v8a \
+            --rip-lib x86 \
+            --rip-lib arm64-v8a \
+            --out ".tmp/out/YouTube-${{ env.youtube_version }}.apk"
       -
         name: Make tag
         id: make-tag
@@ -179,5 +207,5 @@ jobs:
           artifacts: .tmp/out/*.apk
           tag: ${{ steps.make-tag.outputs.tag-name }}
           token: ${{ github.token }}
-          allowUpdates: true
+          allowUpdates: false
           makeLatest: true
