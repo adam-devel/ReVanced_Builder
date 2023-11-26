@@ -14,21 +14,21 @@ jobs:
     name: Get youtube
     runs-on: ubuntu-latest
     steps:
-      - 
+      -
         name: Setup node
         uses: actions/setup-node@v3
         with: { node-version: '16' }
-      - 
+      -
         name: Checkout
         uses: actions/checkout@v3
-      - 
+      -
         name: Npm CI
         run: npm --prefix ./scraper ci ./scraper
-      - 
+      -
         name: Scrape data
         id: data
         run: printf "%s=%s\n" >> $GITHUB_OUTPUT dl_link $(node ./scraper/ ${{ inputs.version }})
-      - 
+      -
         name: Download apk
         env:
           useragent: 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)'
@@ -50,7 +50,7 @@ jobs:
       patches_version:      ${{ steps.data.outputs.patches_version }}
       integrations_version: ${{ steps.data.outputs.integrations_version }}
     steps:
-      - 
+      -
         name: Fetch API
         id: fetch
         env:
@@ -108,7 +108,7 @@ jobs:
     name: Build
     needs: [get-revanced, get-youtube]
     runs-on: ubuntu-latest
-    env: 
+    env:
       cli_version:          "${{ needs.get-revanced.outputs.cli_version }}"
       patches_version:      "${{ needs.get-revanced.outputs.patches_version }}"
       integrations_version: "${{ needs.get-revanced.outputs.integrations_version }}"
@@ -127,7 +127,7 @@ jobs:
         name: Specify patches
         id: patches
         run: |
-          printf "%s=%s" >> $GITHUB_OUTPUT includes "$(while read -r patch; do [ ${patch:0:1} = '#' ] && continue; printf -- ' -i "%s"' "$patch"; done < ./patches)"
+          printf "%s=%s" >> $GITHUB_OUTPUT includes "$(while read -r patch; do [[ -z $patch || ${patch:0:1} = '#' ]] && continue; printf -- ' -i "%s"' "$patch"; done < ./patches)"
       -
         uses: actions/download-artifact@master
         with:
@@ -158,7 +158,7 @@ jobs:
         with:
           name: out
           path: .tmp/out
-              
+
       -
         name: Make tag
         id: make-tag

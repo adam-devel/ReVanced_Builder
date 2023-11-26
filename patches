@@ -1,64 +1,56 @@
-## MicroG
-Vanced Microg support
-## Spoof
-# Spoof app version
-Client spoof
-## Ads: Hide general and video ads, and skip sponsors
+# Removes general ads.
 Hide ads
+
+# Removes ads in the video player.
 Video ads
-Sponsorblock
-## Shorts
+
+# Disables resuming the Shorts player on app startup if a Short was last opened.
 Disable resuming Shorts on startup
-Hide Shorts components
-## Captions
-Disable auto captions
-## Brand
+
+# Changes the app icon and name to your choice (defaults to YouTube ReVanced and the ReVanced logo).
 Custom branding
-Theme
-Change package name
-## UI
-Hide breaking news shelf
+
+# Disable forced captions from being automatically enabled.
+Disable auto captions
+
+# Integrates SponsorBlock which allows skipping video segments such as sponsored content.
+SponsorBlock
+
+# Hides the crowdfunding box between the player and video description.
 Hide crowdfunding box
+
+# Hides the floating microphone button which appears in search.
 Hide floating microphone button
-## Dislikes
-Return Youtube Dislike
-## Behaviour
+
+# Hides the breaking news shelf on the homepage tab.
+Hide breaking news shelf
+
+# Applies a custom theme.
+Theme
+
+# Shows the dislike count of videos using the Return YouTube Dislike API.
+Return YouTube Dislike
+
+# Spoofs the client to allow playback.
+Client spoof
+
+# Spoofs the device dimensions in order to unlock higher video qualities that may not be available on your device.
+Spoof device dimensions
+
+# Bypass URL redirects and open the original URL directly.
 Bypass URL redirects
+
+# Open links outside of the app directly in your browser.
 Open links externally
-Remember video quality
-## Feautures
+
+# Allows YouTube to run without root and under a different package name with Vanced MicroG.
+Vanced MicroG support
+
+# Enables minimized and background playback.
 Minimized playback
+
+# Adds the ability to remember the video quality you chose in the video quality flyout.
+Remember video quality
+
+# Adds volume and brightness swipe controls.
 Swipe controls
-#
-# always-autorepeat
-# comments
-# copy-video-url
-# custom-video-buffer
-# disable-fullscreen-panels
-# disable-player-popup-panels
-# disable-zoom-haptics
-# enable-debugging
-# external-downloads
-# hdr-auto-brightness
-# hide-album-cards
-# hide-autoplay-button
-# hide-captions-button
-# hide-cast-button
-# hide-email-address
-# hide-endscreen-cards
-# hide-filter-bar
-# hide-info-cards
-# hide-layout-components
-# hide-load-more-button
-# hide-player-buttons
-# hide-player-overlay
-# hide-seekbar
-# hide-timestamp
-# hide-video-action-buttons
-# old-quality-layout
-# premium-heading
-# remove-player-controls-background
-# seekbar-tapping
-# tablet-mini-player
-# video-speed
-# wide-searchbar
