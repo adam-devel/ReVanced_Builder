@@ -152,7 +152,7 @@ jobs:
       cli_version:          "${{ needs.download-patcher.outputs.version }}"
       patches_version:      "${{ needs.download-patches.outputs.version }}"
       integrations_version: "${{ needs.download-integrations.outputs.version }}"
-      youtube_version:      "${{ inputs.version }}"
+      youtube_version:      "${{ inputs.youtube-version }}"
     steps:
       -
         name: Setup Java
