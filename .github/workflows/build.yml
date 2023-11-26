@@ -111,7 +111,7 @@ jobs:
           name: build
           path: .tmp/cli.jar
 
-  download-integration:
+  download-integrations:
     name: Download integrations
     runs-on: ubuntu-latest
     outputs:
